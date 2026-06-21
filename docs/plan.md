@@ -18,7 +18,7 @@ App mobile **mono-tâche** qui résout *le dernier 100 mètres* d'une rencontre 
 ## Phase 2 — Backend & build
 
 - [x] **2.0 — Scaffold du monorepo** (pnpm + Turborepo, 3 workspaces, wiring) — *livré : monorepo pnpm+Turbo, `@breakpoint/protocol` (TS+Zod), backend Worker+`SessionDO` stub (`/health`), app Expo SDK 56 + module local `breakpoint-ble` (`hello()`), skills ponytail + UI hyperagent convertis*
-- [ ] 2.1 — Session Durable Object (machine à états, create/join, relai WS, TTL)
+- [x] 2.1 — Session Durable Object (machine à états, create/join, relai WS, TTL) — *livré : `SessionDO` (WebSocket Hibernation), routes `POST /sessions` + `/join` + `GET /ws`, relai GPS/tier, distribution du `bleUuid` uniquement par WS, alarmes joinTtl/maxLifetime/grace, reconnexion par `participantToken` ; test e2e 19/19 couvrant les 7 critères*
 - [ ] 2.2 — Module BLE natif (advertise/scan du `bleUuid`, RSSI brut → JS)
 - [ ] 2.3 — Câblage app (GPS `expo-location`, store de session, client WS, smoothing + tiers)
 - [ ] 2.4 — Écrans branchés sur le vrai backend
