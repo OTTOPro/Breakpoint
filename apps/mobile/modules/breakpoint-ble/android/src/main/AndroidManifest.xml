@@ -1,2 +1,36 @@
-<manifest>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <!-- BLE: advertise + scan. neverForLocation so scanning does NOT pull in
+       location on Android 12+. -->
+  <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+  <uses-permission
+      android:name="android.permission.BLUETOOTH_SCAN"
+      android:usesPermissionFlags="neverForLocation" />
+
+  <!-- Pre-12 fallback: legacy BT + location to allow BLE scanning. -->
+  <uses-permission
+      android:name="android.permission.BLUETOOTH"
+      android:maxSdkVersion="30" />
+  <uses-permission
+      android:name="android.permission.BLUETOOTH_ADMIN"
+      android:maxSdkVersion="30" />
+  <uses-permission
+      android:name="android.permission.ACCESS_FINE_LOCATION"
+      android:maxSdkVersion="30" />
+
+  <!-- Foreground service for reliable scanning with the screen off. -->
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+
+  <uses-feature
+      android:name="android.hardware.bluetooth_le"
+      android:required="true" />
+
+  <application>
+    <service
+        android:name=".ProximityForegroundService"
+        android:exported="false"
+        android:foregroundServiceType="connectedDevice" />
+  </application>
+
 </manifest>
