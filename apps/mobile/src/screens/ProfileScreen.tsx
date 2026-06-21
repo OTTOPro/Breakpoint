@@ -49,9 +49,15 @@ export function ProfileScreen({ onTab }: { onTab?: (tab: TabKey) => void }) {
         onChangeText={setDraft}
         placeholder="Your name"
         placeholderTextColor={Palette.faint}
+        maxLength={32}
         style={styles.input}
       />
-      <PrimaryButton testID="profile-save" label="Save" onPress={() => void setName(draft.trim())} />
+      <PrimaryButton
+        testID="profile-save"
+        label="Save"
+        onPress={() => void setName(draft.trim())}
+        disabled={draft.trim().length === 0}
+      />
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Permissions</Text>

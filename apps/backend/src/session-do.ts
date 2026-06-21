@@ -170,10 +170,13 @@ export class SessionDO {
     await this.armAlarm();
 
     const origin = body.origin ?? "https://breakpoint.app";
-    // joinUrl carries sessionId + joinCapability ONLY. Never the bleUuid.
+    // The capability is a secret, so it goes ONLY in the URL fragment: fragments
+    // are never sent to servers (no access logs) nor leaked via Referer. The
+    // sessionId (a random routing id, not a secret) stays in the query.
+    // Never the bleUuid.
     const joinUrl = `${origin}/j?sid=${encodeURIComponent(
       session.sessionId,
-    )}&cap=${encodeURIComponent(session.joinCapability)}`;
+    )}#cap=${encodeURIComponent(session.joinCapability)}`;
 
     return jsonResponse({
       sessionId: session.sessionId,

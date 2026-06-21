@@ -6,12 +6,13 @@ import { requestProximityPermissions } from '../proximity/permissions';
 export default function LocationRoute() {
   const router = useRouter();
   const next = async () => {
+    let granted = false;
     try {
-      await requestProximityPermissions();
+      granted = await requestProximityPermissions();
     } catch {
-      // best-effort
+      granted = false;
     }
-    router.push('/name');
+    router.push(granted ? '/name' : '/permission-denied');
   };
   return (
     <PermissionScreen

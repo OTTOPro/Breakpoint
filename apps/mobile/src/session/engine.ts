@@ -55,6 +55,12 @@ export class SessionEngine {
         useSessionStore
           .getState()
           .setConnection(willReconnect ? 'reconnecting' : 'closed'),
+      onExhausted: () =>
+        useSessionStore.getState().setError({
+          kind: 'network',
+          message: 'Connection lost. Check your network and try again.',
+          phase: 'ws',
+        }),
     });
     this.ws.connect();
 
