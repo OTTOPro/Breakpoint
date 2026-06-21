@@ -45,7 +45,7 @@ export type OrchestratorInput = {
 };
 
 export class TierOrchestrator {
-  private readonly config: OrchestratorConfig;
+  private config: OrchestratorConfig;
   private locked = false;
   private lastSignalAt = 0;
   private currentTier: Tier = 'far';
@@ -55,6 +55,11 @@ export class TierOrchestrator {
     private readonly onTierChange?: (tier: Tier) => void,
   ) {
     this.config = { ...DEFAULT_ORCHESTRATOR_CONFIG, ...config };
+  }
+
+  /** Live-tune the lock/grace config (used by the diagnostics tool). */
+  setConfig(patch: Partial<OrchestratorConfig>): void {
+    this.config = { ...this.config, ...patch };
   }
 
   get tier(): Tier {
