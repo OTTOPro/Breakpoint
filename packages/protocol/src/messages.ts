@@ -1,35 +1,33 @@
 import { z } from "zod";
-import { tierSchema } from "./session.js";
+import { sessionStateSchema, tierSchema } from "./session.js";
 
 /**
- * WebSocket message placeholders (step 2.0).
- *
- * The control plane relays GPS/tier updates and delivers the derived
- * `bleUuid`. Real payloads are defined in step 2.1 — these stubs only exist
- * so the apps can import and type-check against a shared shape today.
+ * WebSocket wire protocol between a phone and the Session Durable Object.
+ * This is the authoritative shape spoken by the backend (step 2.1) and the
+ * mobile WS client (step 2.3).
  */
 
-/** Coarse geo position relayed over the control plane. */
-export const geoPositionSchema = z.object({
+/** A geo fix relayed over the control plane. */
+export const gpsFixSchema = z.object({
   lat: z.number(),
-  lon: z.number(),
-  accuracy: z.number().nonnegative().optional(),
-  ts: z.number().int().nonnegative(),
+  lng: z.number(),
+  accuracy: z.number().nonnegative(),
+  bearing: z.number().optional(),
+  /** epoch millis (added by the server when relaying). */
+  at: z.number().int().nonnegative().optional(),
 });
-export type GeoPosition = z.infer<typeof geoPositionSchema>;
+export type GpsFix = z.infer<typeof gpsFixSchema>;
 
 /* ------------------------------------------------------------------ */
 /* client -> server                                                    */
 /* ------------------------------------------------------------------ */
 
-export const clientHelloSchema = z.object({
-  type: z.literal("hello"),
-  sessionToken: z.string().min(1),
-});
-
-export const clientPositionSchema = z.object({
-  type: z.literal("position"),
-  position: geoPositionSchema,
+export const clientGpsSchema = z.object({
+  type: z.literal("gps"),
+  lat: z.number(),
+  lng: z.number(),
+  accuracy: z.number().nonnegative(),
+  bearing: z.number().optional(),
 });
 
 export const clientTierSchema = z.object({
@@ -37,10 +35,14 @@ export const clientTierSchema = z.object({
   tier: tierSchema,
 });
 
+export const clientLeaveSchema = z.object({ type: z.literal("leave") });
+export const clientMetSchema = z.object({ type: z.literal("met") });
+
 export const clientMessageSchema = z.discriminatedUnion("type", [
-  clientHelloSchema,
-  clientPositionSchema,
+  clientGpsSchema,
   clientTierSchema,
+  clientLeaveSchema,
+  clientMetSchema,
 ]);
 export type ClientMessage = z.infer<typeof clientMessageSchema>;
 
@@ -48,25 +50,57 @@ export type ClientMessage = z.infer<typeof clientMessageSchema>;
 /* server -> client                                                    */
 /* ------------------------------------------------------------------ */
 
-export const serverWelcomeSchema = z.object({
-  type: z.literal("welcome"),
-  /** UUID derived from the session token, delivered only over WS. */
+export const serverSessionSchema = z.object({
+  type: z.literal("session"),
+  /** UUID derived from the session token, delivered ONLY here over WS. */
   bleUuid: z.string(),
+  peerPresent: z.boolean(),
+  state: sessionStateSchema,
 });
 
-export const serverPeerPositionSchema = z.object({
-  type: z.literal("peer_position"),
-  position: geoPositionSchema,
+export const serverPeerJoinedSchema = z.object({
+  type: z.literal("peerJoined"),
+});
+
+export const serverPeerGpsSchema = z.object({
+  type: z.literal("peerGps"),
+  lat: z.number(),
+  lng: z.number(),
+  accuracy: z.number().nonnegative(),
+  bearing: z.number().optional(),
+  at: z.number(),
 });
 
 export const serverPeerTierSchema = z.object({
-  type: z.literal("peer_tier"),
+  type: z.literal("peerTier"),
   tier: tierSchema,
 });
 
+export const serverStateSchema = z.object({
+  type: z.literal("state"),
+  state: sessionStateSchema,
+});
+
+export const serverPeerLeftSchema = z.object({ type: z.literal("peerLeft") });
+
+export const serverEndedSchema = z.object({
+  type: z.literal("ended"),
+  reason: z.string(),
+});
+
 export const serverMessageSchema = z.discriminatedUnion("type", [
-  serverWelcomeSchema,
-  serverPeerPositionSchema,
+  serverSessionSchema,
+  serverPeerJoinedSchema,
+  serverPeerGpsSchema,
   serverPeerTierSchema,
+  serverStateSchema,
+  serverPeerLeftSchema,
+  serverEndedSchema,
 ]);
 export type ServerMessage = z.infer<typeof serverMessageSchema>;
+
+/** Parse an untrusted server frame; returns null if it doesn't match. */
+export function parseServerMessage(raw: unknown): ServerMessage | null {
+  const result = serverMessageSchema.safeParse(raw);
+  return result.success ? result.data : null;
+}
