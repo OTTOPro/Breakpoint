@@ -11,7 +11,13 @@ import { Fonts, Palette, Radius } from '../ui/tokens';
 const APP_VERSION = '1.0.0';
 
 /** Profile — edit your display name (your session label), permissions, about. */
-export function ProfileScreen({ onTab }: { onTab?: (tab: TabKey) => void }) {
+export function ProfileScreen({
+  onTab,
+  onDiagnostics,
+}: {
+  onTab?: (tab: TabKey) => void;
+  onDiagnostics?: () => void;
+}) {
   const name = useProfileStore((s) => s.name);
   const hydrate = useProfileStore((s) => s.hydrate);
   const setName = useProfileStore((s) => s.setName);
@@ -74,6 +80,10 @@ export function ProfileScreen({ onTab }: { onTab?: (tab: TabKey) => void }) {
         <Text style={styles.cardSub}>BreakPoint · v{APP_VERSION}</Text>
         <Text style={styles.cardSub}>The last 100 feet, solved.</Text>
       </View>
+
+      <Pressable testID="profile-diagnostics" onPress={onDiagnostics} style={styles.linkBtn}>
+        <Text style={styles.linkText}>Diagnostics →</Text>
+      </Pressable>
 
       <View style={styles.navWrap}>
         <Navbar active="profile" onSelect={onTab} />

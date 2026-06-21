@@ -29,6 +29,13 @@ export type ProximityReading = {
   rssiSmoothed: number;
 };
 
+/** RSSI boundaries (dBm) for each zone — strongest zone first. */
+export type ZoneThresholds = {
+  social: number;
+  very_close: number;
+  close: number;
+};
+
 export type ProximityOptions = {
   /** EMA smoothing factor in (0, 1]. Lower = smoother / more lag. */
   alpha?: number;
@@ -36,13 +43,22 @@ export type ProximityOptions = {
   trendLookback?: number;
   /** Minimum dBm slope (over the lookback) to call warming/cooling. */
   trendEps?: number;
+  /** Zone boundaries (dBm). Defaults to {@link DEFAULT_ZONE_THRESHOLDS}. */
+  zoneThresholds?: ZoneThresholds;
+};
+
+/** Default RSSI → zone boundaries (dBm). */
+export const DEFAULT_ZONE_THRESHOLDS: ZoneThresholds = {
+  social: -50,
+  very_close: -65,
+  close: -78,
 };
 
 /** RSSI thresholds (dBm) for each zone boundary, strongest first. */
 export const ZONE_THRESHOLDS: ReadonlyArray<{ zone: Zone; minRssi: number }> = [
-  { zone: 'social', minRssi: -50 },
-  { zone: 'very_close', minRssi: -65 },
-  { zone: 'close', minRssi: -78 },
+  { zone: 'social', minRssi: DEFAULT_ZONE_THRESHOLDS.social },
+  { zone: 'very_close', minRssi: DEFAULT_ZONE_THRESHOLDS.very_close },
+  { zone: 'close', minRssi: DEFAULT_ZONE_THRESHOLDS.close },
 ];
 
 /** Signal floor used when there are no samples yet. */
@@ -66,11 +82,16 @@ export function zoneRank(zone: Zone): number {
   }
 }
 
-/** Map a single (already-smoothed) RSSI value to a zone. */
+/** Map a single (already-smoothed) RSSI value to a zone (default thresholds). */
 export function rssiToZone(rssi: number): Zone {
-  for (const { zone, minRssi } of ZONE_THRESHOLDS) {
-    if (rssi >= minRssi) return zone;
-  }
+  return zoneFor(rssi, DEFAULT_ZONE_THRESHOLDS);
+}
+
+/** Map an RSSI value to a zone using explicit (tunable) thresholds. */
+export function zoneFor(rssi: number, t: ZoneThresholds): Zone {
+  if (rssi >= t.social) return 'social';
+  if (rssi >= t.very_close) return 'very_close';
+  if (rssi >= t.close) return 'close';
   return 'far';
 }
 
@@ -106,12 +127,13 @@ export function computeProximity(
   const eps = opts.trendEps ?? DEFAULT_TREND_EPS;
   const lookbackOpt = opts.trendLookback ?? DEFAULT_TREND_LOOKBACK;
 
+  const thresholds = opts.zoneThresholds ?? DEFAULT_ZONE_THRESHOLDS;
   const ema = emaSeries(
     samples.map((s) => s.rssi),
     alpha,
   );
   const rssiSmoothed = ema[ema.length - 1]!;
-  const zone = rssiToZone(rssiSmoothed);
+  const zone = zoneFor(rssiSmoothed, thresholds);
 
   const lookback = Math.min(lookbackOpt, ema.length - 1);
   const past = ema[ema.length - 1 - lookback]!;
