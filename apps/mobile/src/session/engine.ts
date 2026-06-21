@@ -83,6 +83,11 @@ export class SessionEngine {
     useSessionStore.getState().setProximity(reading);
   }
 
+  /** Confirm the social moment → DO transitions the session to `ended`. */
+  confirmMet(): void {
+    this.ws?.sendMet();
+  }
+
   /** Web / no-radio path: push a mocked RSSI sample into the same pipeline. */
   injectSignal(rssi: number, at: number): void {
     this.onSignal({ rssi, at });

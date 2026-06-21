@@ -27,6 +27,10 @@ export interface SessionStoreState {
   bleUuid?: string;
   peerPresent: boolean;
 
+  /** From createSession — shown on the Invite screen. Never the bleUuid. */
+  joinCode?: string;
+  joinUrl?: string;
+
   myGps?: GpsFix;
   peerGps?: GpsFix;
 
@@ -46,6 +50,7 @@ export interface SessionStoreState {
     role: ParticipantRole;
     participantToken: string;
   }) => void;
+  setInvite: (info: { joinCode: string; joinUrl: string }) => void;
   applyServerMessage: (msg: ServerMessage) => void;
   setMyGps: (gps: GpsFix) => void;
   setProximity: (proximity: ProximityReading) => void;
@@ -61,6 +66,8 @@ const INITIAL = {
   state: undefined,
   bleUuid: undefined,
   peerPresent: false,
+  joinCode: undefined,
+  joinUrl: undefined,
   myGps: undefined,
   peerGps: undefined,
   proximity: null,
@@ -75,6 +82,8 @@ export const useSessionStore = create<SessionStoreState>((set) => ({
 
   setSession: ({ sessionId, role, participantToken }) =>
     set({ sessionId, role, participantToken }),
+
+  setInvite: ({ joinCode, joinUrl }) => set({ joinCode, joinUrl }),
 
   applyServerMessage: (msg) =>
     set((prev) => {
