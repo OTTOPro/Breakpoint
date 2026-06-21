@@ -1,5 +1,7 @@
 import type { ServerMessage } from '@breakpoint/protocol';
 
+import { recordEndedMeetup } from '../local/historyStore';
+
 import {
   onPeerSignal,
   startProximity,
@@ -67,6 +69,11 @@ export class SessionEngine {
 
   private onMessage(msg: ServerMessage): void {
     useSessionStore.getState().applyServerMessage(msg);
+
+    // Tiny local-history hook: on a meetup ending, write one entry. Nothing else.
+    if (msg.type === 'ended') {
+      void recordEndedMeetup({ reason: msg.reason, at: Date.now() });
+    }
 
     // The `session` frame carries the bleUuid (also re-sent on reconnect).
     // Start native proximity exactly once.

@@ -11,7 +11,7 @@ export default function LocationRoute() {
     } catch {
       // best-effort
     }
-    router.push('/home');
+    router.push('/name');
   };
   return (
     <PermissionScreen
@@ -23,7 +23,7 @@ export default function LocationRoute() {
       body="Only with the person you’re meeting, and only while the session is open. It closes the second you find each other. Nobody else sees a thing."
       primaryLabel="Allow while using"
       onAllow={next}
-      onSkip={() => router.push('/home')}
+      onSkip={() => router.push('/name')}
       onBack={() => router.back()}
     />
   );
