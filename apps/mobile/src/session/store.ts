@@ -27,6 +27,9 @@ export interface SessionStoreState {
   bleUuid?: string;
   peerPresent: boolean;
 
+  /** Local display label (from Profile) used for this session. */
+  myLabel?: string;
+
   /** From createSession — shown on the Invite screen. Never the bleUuid. */
   joinCode?: string;
   joinUrl?: string;
@@ -51,6 +54,7 @@ export interface SessionStoreState {
     participantToken: string;
   }) => void;
   setInvite: (info: { joinCode: string; joinUrl: string }) => void;
+  setMyLabel: (label: string) => void;
   applyServerMessage: (msg: ServerMessage) => void;
   setMyGps: (gps: GpsFix) => void;
   setProximity: (proximity: ProximityReading) => void;
@@ -66,6 +70,7 @@ const INITIAL = {
   state: undefined,
   bleUuid: undefined,
   peerPresent: false,
+  myLabel: undefined,
   joinCode: undefined,
   joinUrl: undefined,
   myGps: undefined,
@@ -84,6 +89,8 @@ export const useSessionStore = create<SessionStoreState>((set) => ({
     set({ sessionId, role, participantToken }),
 
   setInvite: ({ joinCode, joinUrl }) => set({ joinCode, joinUrl }),
+
+  setMyLabel: (myLabel) => set({ myLabel }),
 
   applyServerMessage: (msg) =>
     set((prev) => {

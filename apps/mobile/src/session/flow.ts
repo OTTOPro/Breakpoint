@@ -1,3 +1,5 @@
+import { getSessionLabel } from '../local/profileStore';
+
 import { createSession, joinSession } from './api';
 import { engine } from './engineInstance';
 import { useSessionStore } from './store';
@@ -12,6 +14,8 @@ import { useSessionStore } from './store';
  */
 
 export async function startAsInitiator(): Promise<boolean> {
+  // Your Profile display name is your label for this session.
+  useSessionStore.getState().setMyLabel(getSessionLabel());
   try {
     const res = await createSession();
     useSessionStore
@@ -32,6 +36,7 @@ export async function startAsJoiner(
   sessionId: string,
   joinCapability: string,
 ): Promise<boolean> {
+  useSessionStore.getState().setMyLabel(getSessionLabel());
   try {
     const res = await joinSession(sessionId, joinCapability);
     await engine.start({
