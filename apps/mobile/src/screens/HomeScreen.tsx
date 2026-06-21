@@ -1,16 +1,18 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Navbar } from '../ui/Navbar';
+import { Navbar, type TabKey } from '../ui/Navbar';
 import { Fonts, Palette, Radius } from '../ui/tokens';
 
 /** Home launcher — one job: start finding someone, or join a code. */
 export function HomeScreen({
   onFind,
   onJoin,
+  onTab,
 }: {
   onFind?: () => void;
   onJoin?: () => void;
+  onTab?: (tab: TabKey) => void;
 }) {
   const recents = ['A', 'J', 'P', 'S'];
   return (
@@ -51,7 +53,7 @@ export function HomeScreen({
       </View>
 
       <View style={styles.navWrap}>
-        <Navbar active="home" />
+        <Navbar active="home" onSelect={onTab} />
       </View>
     </SafeAreaView>
   );

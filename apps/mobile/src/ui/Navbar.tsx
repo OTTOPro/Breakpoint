@@ -1,10 +1,18 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Fonts, Palette } from './tokens';
 
+export type TabKey = 'home' | 'history' | 'contacts' | 'profile';
+
 /** The bottom nav pill — shown only on Home / History / Contacts / Profile. */
-export function Navbar({ active = 'home' }: { active?: 'home' | 'history' | 'contacts' | 'profile' }) {
-  const items: { key: typeof active; glyph: string }[] = [
+export function Navbar({
+  active = 'home',
+  onSelect,
+}: {
+  active?: TabKey;
+  onSelect?: (tab: TabKey) => void;
+}) {
+  const items: { key: TabKey; glyph: string }[] = [
     { key: 'home', glyph: '⌂' },
     { key: 'history', glyph: '↻' },
     { key: 'contacts', glyph: '☆' },
@@ -15,11 +23,16 @@ export function Navbar({ active = 'home' }: { active?: 'home' | 'history' | 'con
       {items.map((it) => {
         const isActive = it.key === active;
         return (
-          <View key={it.key} style={[styles.item, isActive && styles.itemActive]}>
+          <Pressable
+            key={it.key}
+            testID={`navtab-${it.key}`}
+            onPress={() => onSelect?.(it.key)}
+            style={[styles.item, isActive && styles.itemActive]}
+          >
             <Text style={[styles.glyph, { color: isActive ? Palette.ink : '#7A8088' }]}>
               {it.glyph}
             </Text>
-          </View>
+          </Pressable>
         );
       })}
     </View>
