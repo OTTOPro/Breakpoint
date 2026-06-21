@@ -1,0 +1,24 @@
+{
+  "name": "@breakpoint/backend",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BreakPoint backend — Cloudflare Worker + Durable Object (Hono)",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@breakpoint/protocol": "workspace:*",
+    "hono": "^4.10.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251115.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.66.0"
+  }
+}
