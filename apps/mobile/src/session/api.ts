@@ -7,9 +7,14 @@ import { mapCreateStatus, mapJoinStatus, networkError } from './errors';
 
 const DEFAULT_BASE_URL = 'http://127.0.0.1:8787';
 
-let baseUrl =
-  (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_BACKEND_URL) ||
-  DEFAULT_BASE_URL;
+// Live backend URL is injected at build time via EXPO_PUBLIC_API_URL
+// (EXPO_PUBLIC_BACKEND_URL kept as a fallback for older local setups).
+const envUrl =
+  typeof process !== 'undefined'
+    ? process.env?.EXPO_PUBLIC_API_URL || process.env?.EXPO_PUBLIC_BACKEND_URL
+    : undefined;
+
+let baseUrl = envUrl || DEFAULT_BASE_URL;
 
 export function setBaseUrl(url: string): void {
   baseUrl = url.replace(/\/$/, '');
