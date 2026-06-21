@@ -17,7 +17,8 @@ const config: ExpoConfig = {
   userInterfaceStyle: "automatic",
   ios: {
     bundleIdentifier: "com.breakpoint.app",
-    icon: "./assets/expo.icon",
+    // 1024×1024 PNG, flattened (NO alpha) — App Store requirement.
+    icon: "./assets/images/icon.png",
     supportsTablet: false,
     infoPlist: {
       // Bluetooth (connectionless advertise + scan; requested in step 2.2).
@@ -33,7 +34,7 @@ const config: ExpoConfig = {
   android: {
     package: "com.breakpoint.app",
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
+      backgroundColor: "#212529",
       foregroundImage: "./assets/images/android-icon-foreground.png",
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
@@ -56,10 +57,12 @@ const config: ExpoConfig = {
     [
       "expo-splash-screen",
       {
-        backgroundColor: "#208AEF",
+        backgroundColor: "#212529",
+        image: "./assets/images/splash-icon.png",
+        imageWidth: 200,
         android: {
           image: "./assets/images/splash-icon.png",
-          imageWidth: 76,
+          imageWidth: 200,
         },
       },
     ],
