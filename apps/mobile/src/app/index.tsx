@@ -1,8 +1,19 @@
 import { useRouter } from 'expo-router';
 
-import { OnboardingScreen } from '../screens/OnboardingScreen';
+import { BootGate } from '../screens/BootGate';
 
-export default function OnboardingRoute() {
+/**
+ * Root boot gate: hydrate, then redirect to /home (returning) or /onboarding
+ * (first launch). Renders a splash until hydration is done — no onboarding
+ * flash for returning users.
+ */
+export default function Index() {
   const router = useRouter();
-  return <OnboardingScreen onStart={() => router.push('/bluetooth')} />;
+  return (
+    <BootGate
+      onRoute={(target) =>
+        router.replace(target === 'home' ? '/home' : '/onboarding')
+      }
+    />
+  );
 }
