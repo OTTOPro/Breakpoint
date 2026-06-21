@@ -72,7 +72,9 @@ const config: ExpoConfig = {
     ],
   ],
   experiments: {
-    typedRoutes: true,
+    // Typed routes require regenerating .expo/types via the dev server; keep
+    // off so `tsc` typechecks standalone (routes are plain strings).
+    typedRoutes: false,
     reactCompiler: true,
   },
 };
