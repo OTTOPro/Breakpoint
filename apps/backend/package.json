@@ -10,7 +10,8 @@
     "deploy": "wrangler deploy",
     "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "node test/session-do.test.mjs"
   },
   "dependencies": {
     "@breakpoint/protocol": "workspace:*",
