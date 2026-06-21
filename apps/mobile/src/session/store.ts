@@ -7,6 +7,17 @@ import type {
 import { create } from 'zustand';
 
 import type { ProximityReading } from '../proximity/smoothing';
+import type { ErrorKind } from './errors';
+
+/** In-flight network phase for create/join (loading states). */
+export type SessionPhase = 'idle' | 'creating' | 'joining';
+
+export interface AppError {
+  kind: ErrorKind;
+  message: string;
+  /** Which action failed, so the UI can offer the right retry. */
+  phase: 'create' | 'join' | 'ws';
+}
 
 export type ConnectionState =
   | 'idle'
@@ -47,6 +58,11 @@ export interface SessionStoreState {
   connection: ConnectionState;
   endedReason?: string;
 
+  /** Loading state for create/join. */
+  phase: SessionPhase;
+  /** Last surfaced error (cleared on retry). */
+  error?: AppError;
+
   // actions
   setSession: (info: {
     sessionId: string;
@@ -55,6 +71,8 @@ export interface SessionStoreState {
   }) => void;
   setInvite: (info: { joinCode: string; joinUrl: string }) => void;
   setMyLabel: (label: string) => void;
+  setPhase: (phase: SessionPhase) => void;
+  setError: (error: AppError | undefined) => void;
   applyServerMessage: (msg: ServerMessage) => void;
   setMyGps: (gps: GpsFix) => void;
   setProximity: (proximity: ProximityReading) => void;
@@ -80,6 +98,8 @@ const INITIAL = {
   peerTier: undefined,
   connection: 'idle' as ConnectionState,
   endedReason: undefined,
+  phase: 'idle' as SessionPhase,
+  error: undefined as AppError | undefined,
 };
 
 export const useSessionStore = create<SessionStoreState>((set) => ({
@@ -91,6 +111,10 @@ export const useSessionStore = create<SessionStoreState>((set) => ({
   setInvite: ({ joinCode, joinUrl }) => set({ joinCode, joinUrl }),
 
   setMyLabel: (myLabel) => set({ myLabel }),
+
+  setPhase: (phase) => set({ phase }),
+
+  setError: (error) => set({ error }),
 
   applyServerMessage: (msg) =>
     set((prev) => {

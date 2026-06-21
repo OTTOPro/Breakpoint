@@ -6,6 +6,7 @@ import {
   setBaseUrl,
   getBaseUrl,
 } from './api';
+import { parseJoinUrl } from './joinLink';
 import { ProximityPipeline } from './proximityPipeline';
 import { SessionWsClient } from './wsClient';
 
@@ -70,7 +71,8 @@ describe('2.3 end-to-end: two phones over a live Session DO', () => {
     // --- create + join (control plane) ---
     const created = await createSession();
     const sessionId = created.sessionId;
-    const capability = new URL(created.joinUrl).searchParams.get('cap')!;
+    // Capability is in the URL fragment (security); parse it from there.
+    const capability = parseJoinUrl(created.joinUrl)!.capability;
     const joined = await joinSession(sessionId, capability);
 
     // --- two WS connections (two phones) ---

@@ -6,13 +6,22 @@ export function PrimaryButton({
   label,
   onPress,
   testID,
+  disabled = false,
 }: {
   label: string;
   onPress?: () => void;
   testID?: string;
+  disabled?: boolean;
 }) {
   return (
-    <Pressable testID={testID} onPress={onPress} style={styles.btn}>
+    <Pressable
+      testID={testID}
+      onPress={disabled ? undefined : onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      style={[styles.btn, disabled && styles.btnDisabled]}
+    >
       <Text style={styles.label}>{label}</Text>
     </Pressable>
   );
@@ -43,6 +52,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  btnDisabled: { opacity: 0.45 },
   label: { color: Palette.white, fontSize: 17, fontWeight: '600', fontFamily: Fonts.sans },
   ghost: { height: 44, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
   ghostLabel: { color: Palette.faint, fontSize: 15, fontWeight: '500', fontFamily: Fonts.sans },
