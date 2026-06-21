@@ -1,10 +1,13 @@
 import type { Tier } from '@breakpoint/protocol';
 
+import { getProximityConfig } from '../proximity/proximityConfig';
 import {
   computeProximity,
   type ProximityOptions,
   type ProximityReading,
   type RssiSample,
+  type Trend,
+  type Zone,
 } from '../proximity/smoothing';
 import {
   TierOrchestrator,
@@ -12,54 +15,103 @@ import {
 } from './orchestrator';
 
 export type ProximityPipelineOptions = {
-  /** Sliding window kept for smoothing + lock detection, in ms. */
+  /** Explicit overrides (tests). When omitted, the live proximityConfig is used. */
   windowMs?: number;
   smoothing?: ProximityOptions;
   orchestrator?: Partial<OrchestratorConfig>;
   onTierChange?: (tier: Tier) => void;
 };
 
-const DEFAULT_WINDOW_MS = 2_000;
+/** Everything the diagnostics readout + sparkline need from one push. */
+export interface PipelineSnapshot {
+  reading: ProximityReading;
+  tier: Tier;
+  raw: number;
+  rssiSmoothed: number;
+  zone: Zone;
+  trend: Trend;
+  locked: boolean;
+  /** Samples within the lock window at this instant. */
+  lockCount: number;
+  samples: RssiSample[];
+}
 
 /**
  * Pure proximity pipeline — NO native, NO React Native. Buffers raw RSSI,
  * smooths to a zone, and runs the {@link TierOrchestrator}.
  *
- * This is the injectable signal source: the real engine feeds it from
- * `onPeerSignal`, while tests (and the web no-op path) push mocked RSSI.
+ * It reads the live {@link getProximityConfig} on every push (so the
+ * diagnostics screen can tune in real time), unless explicit overrides were
+ * passed to the constructor. This is the SAME pipeline the app/engine uses —
+ * the diagnostics screen drives this exact class, no parallel logic.
  */
 export class ProximityPipeline {
   private samples: RssiSample[] = [];
-  private readonly windowMs: number;
-  private readonly smoothing?: ProximityOptions;
+  private readonly explicitWindowMs?: number;
+  private readonly explicitSmoothing?: ProximityOptions;
+  private readonly explicitOrchestrator?: Partial<OrchestratorConfig>;
   private readonly orchestrator: TierOrchestrator;
 
   constructor(opts: ProximityPipelineOptions = {}) {
-    this.windowMs = opts.windowMs ?? DEFAULT_WINDOW_MS;
-    this.smoothing = opts.smoothing;
+    this.explicitWindowMs = opts.windowMs;
+    this.explicitSmoothing = opts.smoothing;
+    this.explicitOrchestrator = opts.orchestrator;
     this.orchestrator = new TierOrchestrator(
       opts.orchestrator ?? {},
       opts.onTierChange,
     );
   }
 
-  /** Feed one raw sample; returns the latest reading + displayed tier. */
-  push(
-    sample: RssiSample,
-    distanceM?: number,
-  ): { reading: ProximityReading; tier: Tier } {
+  /** Feed one raw sample; returns the latest snapshot. */
+  push(sample: RssiSample, distanceM?: number): PipelineSnapshot {
+    const cfg = getProximityConfig();
+
+    const windowMs = this.explicitWindowMs ?? cfg.windowMs;
+    const smoothing: ProximityOptions =
+      this.explicitSmoothing ?? {
+        alpha: cfg.alpha,
+        trendLookback: cfg.trendLookback,
+        trendEps: cfg.trendEps,
+        zoneThresholds: cfg.zoneThresholds,
+      };
+    // Live-tune the orchestrator unless the constructor pinned it.
+    if (!this.explicitOrchestrator) {
+      this.orchestrator.setConfig({
+        lockSamples: cfg.lockSamples,
+        lockWindowMs: cfg.lockWindowMs,
+        graceMs: cfg.graceMs,
+        minBleTier: cfg.minBleTier,
+      });
+    }
+
     this.samples.push(sample);
-    const cutoff = sample.at - this.windowMs;
+    const cutoff = sample.at - windowMs;
     this.samples = this.samples.filter((s) => s.at >= cutoff);
 
-    const reading = computeProximity(this.samples, this.smoothing);
+    const reading = computeProximity(this.samples, smoothing);
     const tier = this.orchestrator.update({
       now: sample.at,
       samples: this.samples,
       zone: reading.zone,
       distanceM,
     });
-    return { reading, tier };
+
+    const lockWindowMs = this.explicitOrchestrator?.lockWindowMs ?? cfg.lockWindowMs;
+    const lockCount = this.samples.filter(
+      (s) => s.at >= sample.at - lockWindowMs,
+    ).length;
+
+    return {
+      reading,
+      tier,
+      raw: sample.rssi,
+      rssiSmoothed: reading.rssiSmoothed,
+      zone: reading.zone,
+      trend: reading.trend,
+      locked: this.orchestrator.isLocked,
+      lockCount,
+      samples: [...this.samples],
+    };
   }
 
   get tier(): Tier {

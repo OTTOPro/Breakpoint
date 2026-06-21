@@ -15,6 +15,10 @@ export default defineConfig({
       'react-native-safe-area-context': fileURLToPath(
         new URL('./test/safeAreaMock.tsx', import.meta.url),
       ),
+      // Lightweight SVG shim for the sparkline.
+      'react-native-svg': fileURLToPath(
+        new URL('./test/svgMock.tsx', import.meta.url),
+      ),
     },
   },
   test: {
