@@ -16,10 +16,16 @@ export interface WsClientOptions {
   onMessage: (msg: ServerMessage) => void;
   onOpen?: () => void;
   onClose?: (info: { willReconnect: boolean }) => void;
+  /** Called once when reconnection attempts are exhausted (clear "lost" state). */
+  onExhausted?: () => void;
   /** Auto-reconnect on unexpected close (default true). */
   reconnect?: boolean;
   reconnectDelayMs?: number;
   maxReconnectDelayMs?: number;
+  /** Max reconnect attempts before giving up (default 6). */
+  maxReconnectAttempts?: number;
+  /** Injectable socket constructor (tests). Defaults to `new WebSocket(url)`. */
+  socketFactory?: (url: string) => WebSocket;
 }
 
 /**
@@ -34,7 +40,14 @@ export class SessionWsClient {
   private reconnectAttempt = 0;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly opts: Required<
-    Pick<WsClientOptions, 'reconnect' | 'reconnectDelayMs' | 'maxReconnectDelayMs'>
+    Pick<
+      WsClientOptions,
+      | 'reconnect'
+      | 'reconnectDelayMs'
+      | 'maxReconnectDelayMs'
+      | 'maxReconnectAttempts'
+      | 'socketFactory'
+    >
   > &
     WsClientOptions;
 
@@ -43,6 +56,8 @@ export class SessionWsClient {
       reconnect: true,
       reconnectDelayMs: 1_000,
       maxReconnectDelayMs: 15_000,
+      maxReconnectAttempts: 6,
+      socketFactory: (url: string) => new WebSocket(url),
       ...opts,
     };
   }
@@ -55,7 +70,7 @@ export class SessionWsClient {
 
   connect(): void {
     this.closedByUs = false;
-    const ws = new WebSocket(this.url());
+    const ws = this.opts.socketFactory(this.url());
     this.ws = ws;
 
     ws.addEventListener('open', () => {
@@ -75,9 +90,18 @@ export class SessionWsClient {
     });
 
     ws.addEventListener('close', () => {
-      const willReconnect = this.opts.reconnect && !this.closedByUs;
-      this.opts.onClose?.({ willReconnect });
-      if (willReconnect) this.scheduleReconnect();
+      if (this.closedByUs || !this.opts.reconnect) {
+        this.opts.onClose?.({ willReconnect: false });
+        return;
+      }
+      if (this.reconnectAttempt >= this.opts.maxReconnectAttempts) {
+        // Reconnections exhausted — give up with a clear "lost" signal.
+        this.opts.onClose?.({ willReconnect: false });
+        this.opts.onExhausted?.();
+        return;
+      }
+      this.opts.onClose?.({ willReconnect: true });
+      this.scheduleReconnect();
     });
 
     ws.addEventListener('error', () => {

@@ -1,7 +1,9 @@
 /**
  * Control-plane HTTP client: create / join a session against the backend
  * Worker. Base URL is configurable (defaults to the local `wrangler dev`).
+ * Failures throw a typed {@link ApiError} so the UI can show a clear state.
  */
+import { mapCreateStatus, mapJoinStatus, networkError } from './errors';
 
 const DEFAULT_BASE_URL = 'http://127.0.0.1:8787';
 
@@ -41,13 +43,19 @@ export interface CreateSessionOptions {
 export async function createSession(
   opts: CreateSessionOptions = {},
 ): Promise<CreateSessionResult> {
-  const res = await fetch(`${baseUrl}/sessions`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(opts),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${baseUrl}/sessions`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(opts),
+    });
+  } catch {
+    throw networkError();
+  }
   if (!res.ok) {
-    throw new Error(`createSession failed: ${res.status}`);
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw mapCreateStatus(res.status, body.error);
   }
   return (await res.json()) as CreateSessionResult;
 }
@@ -56,14 +64,19 @@ export async function joinSession(
   sessionId: string,
   joinCapability: string,
 ): Promise<JoinSessionResult> {
-  const res = await fetch(`${baseUrl}/sessions/${sessionId}/join`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ joinCapability }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${baseUrl}/sessions/${sessionId}/join`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ joinCapability }),
+    });
+  } catch {
+    throw networkError();
+  }
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };
-    throw new Error(`joinSession failed: ${res.status} ${body.error ?? ''}`);
+    throw mapJoinStatus(res.status, body.error);
   }
   return (await res.json()) as JoinSessionResult;
 }

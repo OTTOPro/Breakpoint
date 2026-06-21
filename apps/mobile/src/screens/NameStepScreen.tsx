@@ -14,9 +14,12 @@ export function NameStepScreen({ onDone }: { onDone?: () => void }) {
   const existing = useProfileStore((s) => s.name);
   const setName = useProfileStore((s) => s.setName);
   const [draft, setDraft] = useState(existing);
+  const trimmed = draft.trim();
+  const canContinue = trimmed.length > 0;
 
   const submit = async () => {
-    await setName(draft.trim());
+    if (!canContinue) return;
+    await setName(trimmed);
     onDone?.();
   };
 
@@ -40,6 +43,7 @@ export function NameStepScreen({ onDone }: { onDone?: () => void }) {
           placeholder="Your name"
           placeholderTextColor={Palette.faint}
           autoFocus
+          maxLength={32}
           style={styles.input}
         />
       </View>
@@ -47,6 +51,7 @@ export function NameStepScreen({ onDone }: { onDone?: () => void }) {
         testID="name-continue"
         label="Continue"
         onPress={() => void submit()}
+        disabled={!canContinue}
       />
     </SafeAreaView>
   );

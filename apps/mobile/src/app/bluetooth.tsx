@@ -6,12 +6,13 @@ import { requestProximityPermissions } from '../proximity/permissions';
 export default function BluetoothRoute() {
   const router = useRouter();
   const next = async () => {
+    let granted = false;
     try {
-      await requestProximityPermissions();
+      granted = await requestProximityPermissions();
     } catch {
-      // permission flow is best-effort here; real ask happens before scanning
+      granted = false;
     }
-    router.push('/location');
+    router.push(granted ? '/location' : '/permission-denied');
   };
   return (
     <PermissionScreen

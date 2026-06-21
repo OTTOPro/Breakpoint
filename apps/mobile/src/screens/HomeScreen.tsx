@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Navbar, type TabKey } from '../ui/Navbar';
@@ -9,10 +9,14 @@ export function HomeScreen({
   onFind,
   onJoin,
   onTab,
+  pending = false,
+  errorMessage,
 }: {
   onFind?: () => void;
   onJoin?: () => void;
   onTab?: (tab: TabKey) => void;
+  pending?: boolean;
+  errorMessage?: string;
 }) {
   const recents = ['A', 'J', 'P', 'S'];
   return (
@@ -27,13 +31,30 @@ export function HomeScreen({
         </View>
       </View>
 
-      <Pressable testID="home-find" onPress={onFind} style={styles.findCard}>
+      <Pressable
+        testID="home-find"
+        onPress={pending ? undefined : onFind}
+        disabled={pending}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: pending }}
+        style={[styles.findCard, pending && styles.findCardPending]}
+      >
         <View style={styles.plus}>
           <Text style={styles.plusText}>＋</Text>
         </View>
-        <Text style={styles.findTitle}>Find someone</Text>
+        <Text style={styles.findTitle}>{pending ? 'Starting…' : 'Find someone'}</Text>
         <Text style={styles.findSub}>create a meeting point</Text>
+        {pending && (
+          <ActivityIndicator testID="home-pending" color={Palette.white} style={styles.spinner} />
+        )}
       </Pressable>
+
+      {errorMessage ? (
+        <Pressable testID="home-error" onPress={pending ? undefined : onFind} style={styles.errorBox}>
+          <Text style={styles.errorText}>{errorMessage}</Text>
+          <Text style={styles.errorRetry}>Tap to try again</Text>
+        </Pressable>
+      ) : null}
 
       <Pressable testID="home-join" onPress={onJoin} style={styles.joinCard}>
         <View>
@@ -67,6 +88,11 @@ const styles = StyleSheet.create({
   avatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: Palette.lavender, alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontSize: 16, fontWeight: '600', color: Palette.inkSoft, fontFamily: Fonts.sans },
   findCard: { marginTop: 32, borderRadius: Radius.lg + 2, backgroundColor: Palette.ink, padding: 28 },
+  findCardPending: { opacity: 0.6 },
+  spinner: { position: 'absolute', top: 28, right: 28 },
+  errorBox: { marginTop: 14, borderRadius: Radius.md, backgroundColor: '#FBEAEA', borderWidth: 1, borderColor: '#E7B4B4', padding: 16 },
+  errorText: { fontSize: 15, color: '#72243E', fontFamily: Fonts.sans },
+  errorRetry: { fontSize: 13, fontWeight: '600', color: '#72243E', marginTop: 6, fontFamily: Fonts.sans },
   plus: { width: 44, height: 44, borderRadius: Radius.sm, backgroundColor: Palette.pink, alignItems: 'center', justifyContent: 'center' },
   plusText: { fontSize: 22, color: Palette.pinkInk, fontFamily: Fonts.sans },
   findTitle: { fontSize: 27, fontWeight: '600', color: Palette.white, marginTop: 54, fontFamily: Fonts.sans },

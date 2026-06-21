@@ -24,10 +24,18 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
 
   const v = findingVisual({ tier, reading });
 
+  const peerLabel = 'your contact';
+
   const distanceM =
     myGps && peerGps ? haversineDistance(myGps, peerGps) : undefined;
   const metersText =
     distanceM !== undefined ? `≈ ${Math.round(distanceM)} m` : null;
+
+  // Non-colour, screen-reader summary of the proximity state (the colour is
+  // never the only signal: the title text + this label carry it too).
+  const a11yLabel =
+    `Toward ${peerLabel}. ${v.title}. ${v.sub}.` +
+    (metersText ? ` About ${Math.round(distanceM!)} meters.` : '');
 
   return (
     <View
@@ -44,7 +52,13 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
       </Text>
 
       <View style={styles.header}>
-        <Pressable testID="finding-exit" onPress={onExit} style={styles.exit}>
+        <Pressable
+          testID="finding-exit"
+          onPress={onExit}
+          accessibilityRole="button"
+          accessibilityLabel="Leave session"
+          style={styles.exit}
+        >
           <Text style={[styles.exitText, { color: v.ink }]}>✕</Text>
         </Pressable>
       </View>
@@ -74,7 +88,13 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
         )}
       </View>
 
-      <View style={styles.footer}>
+      <View
+        testID="finding-status"
+        style={styles.footer}
+        accessible
+        accessibilityRole="text"
+        accessibilityLabel={a11yLabel}
+      >
         <Text testID="finding-title" style={[styles.title, { color: v.ink }]}>
           {v.title}
         </Text>
@@ -110,9 +130,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   exit: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: 'rgba(255,255,255,0.35)',
     alignItems: 'center',
     justifyContent: 'center',
