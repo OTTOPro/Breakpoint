@@ -5,15 +5,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../ui/PrimaryButton';
 import { Fonts, Palette, Radius } from '../ui/tokens';
 
+const CODE_LENGTH = 6;
+const VALID_CODE = /^[A-Z2-9]{6}$/; // unambiguous alphabet, 6 chars
+
 /** Join — enter a code (or scan). Navigation/join handled by the route. */
 export function JoinScreen({
   onClose,
   onJoin,
+  pending = false,
+  errorMessage,
 }: {
   onClose?: () => void;
   onJoin?: (code: string) => void;
+  pending?: boolean;
+  errorMessage?: string;
 }) {
   const [code, setCode] = useState('');
+  const valid = VALID_CODE.test(code);
+  const showInvalid = code.length === CODE_LENGTH && !valid;
+  const canSubmit = valid && !pending;
   return (
     <SafeAreaView testID="screen-join" style={styles.root}>
       <View style={styles.topbar}>
@@ -38,9 +48,19 @@ export function JoinScreen({
           placeholderTextColor={Palette.faint}
           autoCapitalize="characters"
           autoCorrect={false}
-          maxLength={6}
-          style={styles.input}
+          maxLength={CODE_LENGTH}
+          style={[styles.input, showInvalid && styles.inputInvalid]}
         />
+        {showInvalid ? (
+          <Text testID="join-invalid" style={styles.invalid}>
+            Codes are 6 characters (letters and numbers).
+          </Text>
+        ) : null}
+        {errorMessage ? (
+          <Text testID="join-error" style={styles.invalid}>
+            {errorMessage}
+          </Text>
+        ) : null}
 
         <View style={styles.orRow}>
           <View style={styles.hr} />
@@ -53,7 +73,12 @@ export function JoinScreen({
         </Pressable>
       </View>
 
-      <PrimaryButton testID="join-submit" label="Join" onPress={() => onJoin?.(code)} />
+      <PrimaryButton
+        testID="join-submit"
+        label={pending ? 'Joining…' : 'Join'}
+        onPress={canSubmit ? () => onJoin?.(code) : undefined}
+        disabled={!canSubmit}
+      />
     </SafeAreaView>
   );
 }
@@ -80,6 +105,8 @@ const styles = StyleSheet.create({
     letterSpacing: 6,
     color: Palette.ink,
   },
+  inputInvalid: { borderColor: '#C0566E' },
+  invalid: { fontSize: 14, color: '#72243E', marginTop: 10, fontFamily: Fonts.sans },
   orRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   hr: { flex: 1, height: 1, backgroundColor: Palette.lavender },
   or: { fontSize: 14, color: Palette.faint, fontFamily: Fonts.sans },

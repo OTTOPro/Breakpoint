@@ -2,32 +2,35 @@ import { getSessionLabel } from '../local/profileStore';
 
 import { createSession, joinSession } from './api';
 import { engine } from './engineInstance';
+import { describeError } from './errors';
+import { parseJoinUrl } from './joinLink';
 import { useSessionStore } from './store';
 
 /**
- * Session flow helpers — thin glue between the UI and the 2.3 engine. Screens
- * call these; they never invent state, and never fetch the bleUuid (that
- * arrives via the WS `session` frame, handled inside the engine/store).
- *
- * All network is best-effort: navigation never blocks on it, so the flow stays
- * walkable on web even without a backend running.
+ * Session flow helpers — thin glue between the UI and the 2.3 engine. They own
+ * the loading phase + error state so screens can show a spinner / error+retry
+ * and never hang. Network is best-effort; failures surface as a clear error.
  */
 
 export async function startAsInitiator(): Promise<boolean> {
-  // Your Profile display name is your label for this session.
-  useSessionStore.getState().setMyLabel(getSessionLabel());
+  const store = useSessionStore.getState();
+  store.setMyLabel(getSessionLabel());
+  store.setError(undefined);
+  store.setPhase('creating');
   try {
     const res = await createSession();
-    useSessionStore
-      .getState()
-      .setInvite({ joinCode: res.joinCode, joinUrl: res.joinUrl });
+    store.setInvite({ joinCode: res.joinCode, joinUrl: res.joinUrl });
     await engine.start({
       sessionId: res.sessionId,
       participantToken: res.participantToken,
       role: 'initiator',
     });
+    store.setPhase('idle');
     return true;
-  } catch {
+  } catch (err) {
+    const { kind, message } = describeError(err);
+    store.setError({ kind, message, phase: 'create' });
+    store.setPhase('idle');
     return false;
   }
 }
@@ -36,7 +39,10 @@ export async function startAsJoiner(
   sessionId: string,
   joinCapability: string,
 ): Promise<boolean> {
-  useSessionStore.getState().setMyLabel(getSessionLabel());
+  const store = useSessionStore.getState();
+  store.setMyLabel(getSessionLabel());
+  store.setError(undefined);
+  store.setPhase('joining');
   try {
     const res = await joinSession(sessionId, joinCapability);
     await engine.start({
@@ -44,10 +50,28 @@ export async function startAsJoiner(
       participantToken: res.participantToken,
       role: 'joiner',
     });
+    store.setPhase('idle');
     return true;
-  } catch {
+  } catch (err) {
+    const { kind, message } = describeError(err);
+    store.setError({ kind, message, phase: 'join' });
+    store.setPhase('idle');
     return false;
   }
+}
+
+/** Join from a pasted/deep link (capability read from the URL fragment). */
+export async function startAsJoinerFromLink(url: string): Promise<boolean> {
+  const link = parseJoinUrl(url);
+  if (!link) {
+    useSessionStore.getState().setError({
+      kind: 'invalid_code',
+      message: "That link doesn't look right. Ask for a fresh invite.",
+      phase: 'join',
+    });
+    return false;
+  }
+  return startAsJoiner(link.sessionId, link.capability);
 }
 
 export function confirmMet(): void {
