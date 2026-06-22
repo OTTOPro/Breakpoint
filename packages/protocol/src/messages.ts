@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { sessionStateSchema, tierSchema } from "./session.js";
+import { sessionStateSchema, tierSchema } from "./session";
 
 /**
  * WebSocket wire protocol between a phone and the Session Durable Object.
