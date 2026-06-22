@@ -23,6 +23,7 @@ export default function HomeRoute() {
       onFind={find}
       onJoin={() => router.push('/join')}
       onTab={goTab}
+      onRecents={() => router.push('/history')}
       pending={phase === 'creating'}
       errorMessage={error?.phase === 'create' ? error.message : undefined}
     />
