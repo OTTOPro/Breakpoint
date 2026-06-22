@@ -18,6 +18,27 @@ export function buildJoinUrl(
   return `${origin}/j?sid=${encodeURIComponent(sessionId)}#cap=${encodeURIComponent(capability)}`;
 }
 
+/** Build a link that opens THIS app's /join route (capability kept in fragment). */
+export function buildAppJoinLink(
+  origin: string,
+  sessionId: string,
+  capability: string,
+): string {
+  return `${origin}/join?sid=${encodeURIComponent(sessionId)}#cap=${encodeURIComponent(capability)}`;
+}
+
+/** Read sessionId (query) + capability (fragment) from a join deep link. */
+export function parseJoinTarget(search: string, hash: string): JoinLink | null {
+  const sessionId = new URLSearchParams(
+    search.startsWith('?') ? search.slice(1) : search,
+  ).get('sid');
+  const capability = new URLSearchParams(
+    hash.startsWith('#') ? hash.slice(1) : hash,
+  ).get('cap');
+  if (!sessionId || !capability) return null;
+  return { sessionId, capability };
+}
+
 /** Parse a join URL / deep link, reading the capability from the fragment. */
 export function parseJoinUrl(raw: string): JoinLink | null {
   try {
