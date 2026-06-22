@@ -1,6 +1,11 @@
-import type { ServerMessage } from '@breakpoint/protocol';
+import type { ServerMessage, SessionState } from '@breakpoint/protocol';
 
-import { recordEndedMeetup } from '../local/historyStore';
+import {
+  outcomeFromEndedReason,
+  outcomeFromState,
+  recordTerminal,
+  type HistoryOutcome,
+} from '../local/historyStore';
 
 import {
   onPeerSignal,
@@ -35,10 +40,21 @@ export class SessionEngine {
   private gpsWatch: GpsWatchHandle | null = null;
   private proximityStarted = false;
 
+  // History tracking: when the session went active, and a guard so each
+  // session writes exactly one terminal entry no matter how it ends.
+  private startedAt?: number;
+  private terminalRecorded = false;
+  /** Peer's label if the session ever exposes it (it doesn't today). */
+  private peerLabel?: string;
+
   async start(params: StartSessionParams): Promise<void> {
     const store = useSessionStore.getState();
     store.setSession(params);
     store.setConnection('connecting');
+
+    this.startedAt = undefined;
+    this.terminalRecorded = false;
+    this.peerLabel = undefined;
 
     this.pipeline = new ProximityPipeline({
       onTierChange: (tier) => {
@@ -55,12 +71,15 @@ export class SessionEngine {
         useSessionStore
           .getState()
           .setConnection(willReconnect ? 'reconnecting' : 'closed'),
-      onExhausted: () =>
+      onExhausted: () => {
         useSessionStore.getState().setError({
           kind: 'network',
           message: 'Connection lost. Check your network and try again.',
           phase: 'ws',
-        }),
+        });
+        // Connection lost is a terminal outcome too.
+        this.recordTerminalOnce('lost');
+      },
     });
     this.ws.connect();
 
@@ -76,9 +95,19 @@ export class SessionEngine {
   private onMessage(msg: ServerMessage): void {
     useSessionStore.getState().applyServerMessage(msg);
 
-    // Tiny local-history hook: on a meetup ending, write one entry. Nothing else.
+    // Track when the session first goes active (for duration).
+    const state = stateOf(msg);
+    if (state && isActive(state) && this.startedAt == null) {
+      this.startedAt = Date.now();
+    }
+
+    // History: write exactly one rich entry on the first terminal signal,
+    // whatever the path (met via `ended` reason, or a terminal `state`).
     if (msg.type === 'ended') {
-      void recordEndedMeetup({ reason: msg.reason, at: Date.now() });
+      this.recordTerminalOnce(outcomeFromEndedReason(msg.reason));
+    } else if (state) {
+      const outcome = outcomeFromState(state);
+      if (outcome) this.recordTerminalOnce(outcome);
     }
 
     // The `session` frame carries the bleUuid (also re-sent on reconnect).
@@ -88,6 +117,18 @@ export class SessionEngine {
       this.peerSub = onPeerSignal((e: PeerSignalEvent) => this.onSignal(e));
       startProximity(msg.bleUuid);
     }
+  }
+
+  /** Write the terminal history entry once per session. */
+  private recordTerminalOnce(outcome: HistoryOutcome): void {
+    if (this.terminalRecorded) return;
+    this.terminalRecorded = true;
+    void recordTerminal({
+      outcome,
+      peerLabel: this.peerLabel,
+      startedAt: this.startedAt,
+      endedAt: Date.now(),
+    });
   }
 
   private onSignal(e: PeerSignalEvent): void {
@@ -115,4 +156,20 @@ export class SessionEngine {
     this.ws = null;
     this.proximityStarted = false;
   }
+}
+
+const ACTIVE_STATES: ReadonlySet<SessionState> = new Set<SessionState>([
+  'active_gps',
+  'active_ble',
+  'social_handoff',
+]);
+
+function isActive(state: SessionState): boolean {
+  return ACTIVE_STATES.has(state);
+}
+
+/** The session state carried by a server message, if any. */
+function stateOf(msg: ServerMessage): SessionState | undefined {
+  if (msg.type === 'session' || msg.type === 'state') return msg.state;
+  return undefined;
 }
