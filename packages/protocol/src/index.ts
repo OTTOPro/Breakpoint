@@ -9,9 +9,9 @@
  */
 import { z } from "zod";
 
-export * from "./session.js";
-export * from "./messages.js";
-export * from "./ble.js";
+export * from "./session";
+export * from "./messages";
+export * from "./ble";
 
 /** Library version marker — handy for debugging wire mismatches later. */
 export const PROTOCOL_VERSION = "0.0.0" as const;

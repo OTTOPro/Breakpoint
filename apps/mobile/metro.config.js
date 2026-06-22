@@ -19,4 +19,12 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, "node_modules"),
 ];
 
+// 3. Resolve workspace packages from their TypeScript SOURCE, so a fresh clone
+//    or EAS Build never needs `packages/*/dist` pre-built. `@breakpoint/protocol`
+//    exposes `react-native`/`browser`/`source` export conditions → src/index.ts;
+//    Node/the backend keep `import`/`default` → dist. Package "exports" are
+//    enabled (Metro picks the right condition per platform); we deliberately do
+//    NOT touch resolverMainFields, which would mis-resolve other packages.
+config.resolver.unstable_enablePackageExports = true;
+
 module.exports = config;
