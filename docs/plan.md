@@ -31,6 +31,12 @@ App mobile **mono-tâche** qui résout *le dernier 100 mètres* d'une rencontre 
 
 ---
 
+## Phase 3 — V2 (identité, contacts, push)
+
+- [x] 3.0 — Identité d'appareil + D1 (Niveau 1, sans auth/email, additif) — *Livré : binding **D1** (`env.DB`) + migration `0001_devices.sql` (table `devices`), endpoints `POST /devices/register` (crée + émet un `deviceSecret` une seule fois, stocke un **hash SHA-256**) et `POST /devices/update` (vérifie le secret, change `displayName`). Client : module `identity` — au 1ᵉʳ lancement génère un `deviceId` (UUID crypto) persisté en AsyncStorage + `deviceSecret` en **SecureStore** (fallback web), appelle `register` au boot, et **sync** le nom du `profileStore` vers `/devices/update`. **DO/session/proximité intacts.** Preuves : `pnpm typecheck`=0 ; backend e2e (register émet secret hex, re-register sans secret, update bon secret→`displayName` changé en D1, mauvais→403, absent→401, inconnu→404 ; `secretHash`=`sha256(secret)`≠clair) ; 5 tests client (1ᵉʳ lancement persiste id+secret+register, rename→update) ; **112 tests** au total (107 V1 verts) ; **D1 local + navigateur réel** : 1ᵉʳ load → ligne D1 créée (count 1→2, `deviceId` UUID). Migrations appliquées **local + remote**, backend redéployé (cloud avec `env.DB`).*
+
+---
+
 ## Architecture (référence)
 
 **Monorepo** pnpm + Turborepo :

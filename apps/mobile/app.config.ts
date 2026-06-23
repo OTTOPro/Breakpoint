@@ -73,6 +73,7 @@ const config: ExpoConfig = {
           "BreakPoint uses your location to guide you toward your contact.",
       },
     ],
+    "expo-secure-store",
   ],
   experiments: {
     // Typed routes require regenerating .expo/types via the dev server; keep

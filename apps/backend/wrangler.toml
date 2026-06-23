@@ -12,3 +12,11 @@ class_name = "SessionDO"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["SessionDO"]
+
+# D1 — anonymous device identity (V2 Phase 1). Additive; the DO/session is
+# untouched. Migrations live in ./migrations.
+[[d1_databases]]
+binding = "DB"
+database_name = "breakpoint-db"
+database_id = "59de8d7f-5473-4c67-8e73-c84f1d3c2399"
+migrations_dir = "migrations"
