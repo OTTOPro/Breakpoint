@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { registerDeviceRoutes } from "./devices.js";
 import { SessionDO } from "./session-do.js";
 
 export { SessionDO };
@@ -9,6 +10,9 @@ const app = new Hono<{ Bindings: Env }>();
 // Allow browser clients (web build) to call the control plane. No cookies are
 // used, so a permissive origin is fine; preflight (OPTIONS) is handled here.
 app.use("*", cors());
+
+// V2 device identity (D1). Additive — independent of the DO/session.
+registerDeviceRoutes(app);
 
 /** Resolve the DO stub that owns a given session id. */
 function stubFor(env: Env, sessionId: string) {
