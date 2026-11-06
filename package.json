@@ -2,7 +2,8 @@
   "name": "breakpoint",
   "version": "0.0.0",
   "private": true,
-  "description": "BreakPoint — the last-100-meters meetup app monorepo",
+  "description": "The last hundred metres of a meetup, guided by Bluetooth proximity",
+  "license": "MIT",
   "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": ">=20"
