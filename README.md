@@ -11,7 +11,7 @@ Two people agree to meet in a park. The park is big, the phones say they are 30 
 
 ## How it works
 
-Both phones join a short-lived session on the server and receive a private Bluetooth identifier for it, then start advertising and scanning over BLE. Signal strength is noisy, so the app does not try to compute a distance; it watches the signal trend over a few seconds and shows a simple hotter or colder signal. The server side is a Cloudflare Worker with one Durable Object per session, which holds the pairing state and expires on its own. The session holds the last known position of each phone while it runs and clears it when it ends. No account, nothing kept afterwards.
+Both phones join a short-lived session on the server and receive a private Bluetooth identifier for it, then start advertising and scanning over BLE. Signal strength is noisy, so the app does not try to compute a distance; it watches the signal trend over a few seconds and shows a simple hotter or colder signal. The server side is a Cloudflare Worker with one Durable Object per session, which holds the pairing state and expires on its own. The session holds the last known position of each phone while it runs and clears it when it ends. An empty marker stays for a day so that someone joining late sees "expired" rather than "not found". No account, no positions, nothing else.
 
 ## Stack
 
