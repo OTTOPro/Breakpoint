@@ -66,12 +66,21 @@ class ProximityForegroundService : Service() {
         return START_NOT_STICKY
       }
       else -> {
-        val sessionUuid = intent?.getStringExtra(EXTRA_SESSION_UUID)
+        // startForegroundService() requires this call even if we stop at once.
         startForeground(NOTIFICATION_ID, buildNotification())
-        if (sessionUuid != null) startProximity(sessionUuid)
+        val sessionUuid = intent?.getStringExtra(EXTRA_SESSION_UUID)
+        if (sessionUuid == null) {
+          // No session to scan for: never sit in the foreground doing nothing.
+          stopSelf()
+          return START_NOT_STICKY
+        }
+        startProximity(sessionUuid)
       }
     }
-    return START_STICKY
+    // Never restarted by the system after a kill: the JS session that owned
+    // this scan is gone too, and a restart would bring the notification back
+    // with no session behind it.
+    return START_NOT_STICKY
   }
 
   override fun onDestroy() {
