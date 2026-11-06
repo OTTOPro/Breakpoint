@@ -163,3 +163,23 @@ describe('FindingScreen: the trend leads once Bluetooth has the peer', () => {
     expect(r.getByTestId('finding-title').textContent).toContain('Getting warmer');
   });
 });
+
+describe('FindingScreen: the arrow points at the other phone', () => {
+  const me = { lat: 45.5, lng: -73.6, accuracy: 5, at: 1 };
+
+  it('is faded and unrotated until both positions are known', () => {
+    drive([-86]);
+    const arrow = render(<FindingScreen />).getByTestId('finding-arrow');
+    expect(arrow.getAttribute('aria-label')).toBe('Direction not known yet');
+  });
+
+  it('rotates toward the peer (east of me: 90 degrees)', () => {
+    drive([-86]);
+    const st = useSessionStore.getState();
+    st.setMyGps(me);
+    st.applyServerMessage({ type: 'peerGps', lat: 45.5, lng: -73.59, accuracy: 5, at: 2 });
+    const arrow = render(<FindingScreen />).getByTestId('finding-arrow');
+    expect(arrow.getAttribute('aria-label')).toBe('Direction 90 degrees');
+    expect(arrow.getAttribute('style') ?? '').toContain('rotate(90deg)');
+  });
+});

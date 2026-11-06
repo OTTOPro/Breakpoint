@@ -37,3 +37,15 @@ export function bearing(a: LatLng, b: LatLng): number {
     Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
   return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
+
+/**
+ * Rotation for the on-screen arrow, in degrees clockwise from the top of the
+ * screen. `heading` is the direction the phone is moving in (GPS course); with
+ * it the arrow points relative to where you walk. Without it (standing still,
+ * or a browser) the arrow points relative to north.
+ */
+export function arrowRotation(me: LatLng, peer: LatLng, heading?: number | null): number {
+  const toPeer = bearing(me, peer);
+  const facing = typeof heading === 'number' && Number.isFinite(heading) ? heading : 0;
+  return (((toPeer - facing) % 360) + 360) % 360;
+}

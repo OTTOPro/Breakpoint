@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { bearing, haversineDistance } from './geo';
+import { arrowRotation, bearing, haversineDistance } from './geo';
 
 describe('haversineDistance', () => {
   it('is zero for identical points', () => {
@@ -51,5 +51,25 @@ describe('bearing', () => {
     const b = bearing({ lat: 10, lng: 20 }, { lat: -5, lng: -30 });
     expect(b).toBeGreaterThanOrEqual(0);
     expect(b).toBeLessThan(360);
+  });
+});
+
+describe('arrowRotation', () => {
+  const me = { lat: 45.5, lng: -73.6 };
+  const east = { lat: 45.5, lng: -73.59 };
+
+  it('points at the peer relative to north when there is no heading', () => {
+    expect(arrowRotation(me, east)).toBeCloseTo(90, 0);
+    expect(arrowRotation(me, east, null)).toBeCloseTo(90, 0);
+  });
+
+  it('turns with the direction of travel', () => {
+    // Walking east, a peer to the east is straight ahead (0 or 360).
+    const ahead = arrowRotation(me, east, 90);
+    expect(Math.min(ahead, 360 - ahead)).toBeLessThan(0.5);
+    // Walking north, the same peer is to the right.
+    expect(arrowRotation(me, east, 0)).toBeCloseTo(90, 0);
+    // Walking south-east, it is up and to the left.
+    expect(arrowRotation(me, east, 135)).toBeCloseTo(315, 0);
   });
 });

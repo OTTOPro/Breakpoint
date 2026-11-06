@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 
-import { haversineDistance } from '../location/geo';
+import { arrowRotation, haversineDistance } from '../location/geo';
 import { useSessionStore } from '../session/store';
 import { findingVisual, radioIssueText } from '../ui/proximityVisual';
 import { Fonts } from '../ui/tokens';
@@ -32,6 +32,8 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
     myGps && peerGps ? haversineDistance(myGps, peerGps) : undefined;
   const metersText =
     distanceM !== undefined ? `≈ ${Math.round(distanceM)} m` : null;
+  const arrowDeg =
+    myGps && peerGps ? arrowRotation(myGps, peerGps, myGps.bearing) : undefined;
 
   // Non-colour, screen-reader summary of the proximity state (the colour is
   // never the only signal: the title text + this label carry it too).
@@ -78,7 +80,19 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
         {v.showArrow && (
           <View
             testID="finding-arrow"
-            style={[styles.arrow, { transform: [{ rotate: '0deg' }] }]}
+            accessibilityLabel={
+              arrowDeg === undefined
+                ? 'Direction not known yet'
+                : `Direction ${Math.round(arrowDeg)} degrees`
+            }
+            style={[
+              styles.arrow,
+              {
+                transform: [{ rotate: `${Math.round(arrowDeg ?? 0)}deg` }],
+                // Until both positions are known the arrow has nothing to point at.
+                opacity: arrowDeg === undefined ? 0.3 : 1,
+              },
+            ]}
           >
             <Text style={[styles.arrowGlyph, { color: v.ink }]}>▲</Text>
           </View>
