@@ -11,8 +11,7 @@
     "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "node test/session-do.test.mjs",
-    "test:devices": "node test/devices.test.mjs"
+    "test": "node test/session-do.test.mjs"
   },
   "dependencies": {
     "@breakpoint/protocol": "workspace:*",

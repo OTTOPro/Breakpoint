@@ -4,6 +4,4 @@
  */
 interface Env {
   SESSION_DO: DurableObjectNamespace;
-  /** D1 — anonymous device identity (V2 Phase 1). */
-  DB: D1Database;
 }
