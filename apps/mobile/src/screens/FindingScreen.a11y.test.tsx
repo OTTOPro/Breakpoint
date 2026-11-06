@@ -24,7 +24,7 @@ const repeat = (rssi: number, n: number) => Array.from({ length: n }, () => rssi
 
 const TIERS: { ramp: number[]; phrase: string }[] = [
   { ramp: [-86], phrase: 'Follow the arrow' },
-  { ramp: repeat(-72, 8), phrase: 'Getting warmer' },
+  { ramp: repeat(-72, 8), phrase: 'Signal locked' },
   { ramp: repeat(-60, 8), phrase: 'Almost on them' },
   { ramp: repeat(-44, 8), phrase: 'here' },
 ];

@@ -89,7 +89,7 @@ export interface FindingVisual {
 
 const TIER_COPY: Record<Tier, { title: string; sub: string }> = {
   far: { title: 'Follow the arrow', sub: 'they’re this way' },
-  close: { title: 'Getting warmer', sub: 'signal locked · map fading' },
+  close: { title: 'Signal locked', sub: 'walk a few steps and watch the colour' },
   very_close: { title: 'Almost on them', sub: 'you’re hot — look around' },
   social: { title: 'You’re here', sub: 'look up' },
 };
@@ -108,6 +108,9 @@ export function findingVisual(input: {
 
   const isHere = tier === 'social';
   const isCooling = trend === 'cooling' && !isHere;
+  // Once Bluetooth has the peer, the direction of the signal is the message:
+  // the absolute level says little, its trend over a few seconds says a lot.
+  const isWarming = trend === 'warming' && (tier === 'close' || tier === 'very_close');
 
   const basePct = proximityPercent(rssi);
   const pct = isCooling ? coolingShift(basePct) : basePct;
@@ -116,7 +119,9 @@ export function findingVisual(input: {
 
   const copy = isCooling
     ? { title: 'You’re cooling', sub: 'wrong way — turn around' }
-    : TIER_COPY[tier];
+    : isWarming
+      ? { title: 'Getting warmer', sub: 'keep going this way' }
+      : TIER_COPY[tier];
 
   return {
     accent,

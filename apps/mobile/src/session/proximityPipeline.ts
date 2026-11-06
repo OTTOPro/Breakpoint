@@ -90,7 +90,7 @@ export class ProximityPipeline {
     const smoothing: ProximityOptions =
       this.explicitSmoothing ?? {
         alpha: cfg.alpha,
-        trendLookback: cfg.trendLookback,
+        trendWindowMs: cfg.trendWindowMs,
         trendEps: cfg.trendEps,
         zoneThresholds: cfg.zoneThresholds,
       };

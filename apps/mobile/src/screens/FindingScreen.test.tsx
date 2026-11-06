@@ -52,13 +52,13 @@ describe('FindingScreen — state-driven render per tier', () => {
     expect(r.getByTestId('finding-title').textContent).toContain('Follow the arrow');
   });
 
-  it('close → radar appears ("Getting warmer")', () => {
+  it('close → radar appears ("Signal locked" while the signal is flat)', () => {
     drive(repeat(-72, 8)); // stable lock, zone close
     const r = render(<FindingScreen />);
     expect(useSessionStore.getState().tier).toBe('close');
     expect(r.getByTestId('finding-radar')).toBeTruthy();
     expect(r.queryByTestId('finding-social')).toBeNull();
-    expect(r.getByTestId('finding-title').textContent).toContain('Getting warmer');
+    expect(r.getByTestId('finding-title').textContent).toContain('Signal locked');
   });
 
   it('very_close → radar, no arrow ("Almost on them")', () => {
@@ -150,5 +150,16 @@ describe('FindingScreen: Bluetooth problems are visible', () => {
     useSessionStore.getState().setRadioIssue('permission_denied');
     const r = render(<FindingScreen />);
     expect(r.getByTestId('finding-radio-issue').textContent).toMatch(/permission/i);
+  });
+});
+
+describe('FindingScreen: the trend leads once Bluetooth has the peer', () => {
+  it('says "Getting warmer" while the signal climbs over a few seconds', () => {
+    // About 2 dB per second over 2.4 s, still in the close zone.
+    const ramp = [-77, -77, -76, -76, -76, -75, -75, -75, -74, -74, -74, -73, -73, -73, -72, -72, -72];
+    const last = drive(ramp);
+    expect(last.reading?.trend).toBe('warming');
+    const r = render(<FindingScreen />);
+    expect(r.getByTestId('finding-title').textContent).toContain('Getting warmer');
   });
 });

@@ -39,9 +39,9 @@ export type ZoneThresholds = {
 export type ProximityOptions = {
   /** EMA smoothing factor in (0, 1]. Lower = smoother / more lag. */
   alpha?: number;
-  /** How many smoothed steps back to look when computing the trend. */
-  trendLookback?: number;
-  /** Minimum dBm slope (over the lookback) to call warming/cooling. */
+  /** How far back the trend looks, in ms. */
+  trendWindowMs?: number;
+  /** Minimum slope, in dB per second, to call warming or cooling. */
   trendEps?: number;
   /** Zone boundaries (dBm). Defaults to {@link DEFAULT_ZONE_THRESHOLDS}. */
   zoneThresholds?: ZoneThresholds;
@@ -75,8 +75,11 @@ export function isUsableRssi(rssi: number): boolean {
 }
 
 const DEFAULT_ALPHA = 0.25;
-const DEFAULT_TREND_LOOKBACK = 4;
-const DEFAULT_TREND_EPS = 1.5;
+const DEFAULT_TREND_WINDOW_MS = 3_000;
+const DEFAULT_TREND_EPS = 1;
+/** Fewer samples or a shorter span than this is not a trend, just noise. */
+const MIN_TREND_SAMPLES = 4;
+const MIN_TREND_SPAN_MS = 1_000;
 
 /** Rank a zone from widest (far=0) to tightest (social=3). */
 export function zoneRank(zone: Zone): number {
@@ -135,7 +138,7 @@ export function computeProximity(
 
   const alpha = opts.alpha ?? DEFAULT_ALPHA;
   const eps = opts.trendEps ?? DEFAULT_TREND_EPS;
-  const lookbackOpt = opts.trendLookback ?? DEFAULT_TREND_LOOKBACK;
+  const trendWindowMs = opts.trendWindowMs ?? DEFAULT_TREND_WINDOW_MS;
 
   const thresholds = opts.zoneThresholds ?? DEFAULT_ZONE_THRESHOLDS;
   const ema = emaSeries(
@@ -145,11 +148,40 @@ export function computeProximity(
   const rssiSmoothed = ema[ema.length - 1]!;
   const zone = zoneFor(rssiSmoothed, thresholds);
 
-  const lookback = Math.min(lookbackOpt, ema.length - 1);
-  const past = ema[ema.length - 1 - lookback]!;
-  const slope = rssiSmoothed - past;
+  const slope = trendSlope(samples, trendWindowMs);
   const trend: Trend =
-    slope > eps ? 'warming' : slope < -eps ? 'cooling' : 'steady';
+    slope === null ? 'steady' : slope > eps ? 'warming' : slope < -eps ? 'cooling' : 'steady';
 
   return { zone, trend, rssiSmoothed };
+}
+
+/**
+ * Least-squares slope of the raw signal over the last `windowMs`, in dB per
+ * second. Measured against time, not sample count, so it means the same thing
+ * whether the radio reports ten times a second or once. Fitting a line over a
+ * few seconds averages out the multipath noise that makes single RSSI
+ * readings useless as a distance. Returns null when there is too little data
+ * to call it a trend.
+ */
+export function trendSlope(
+  samples: readonly RssiSample[],
+  windowMs = DEFAULT_TREND_WINDOW_MS,
+): number | null {
+  if (samples.length === 0) return null;
+  const end = samples[samples.length - 1]!.at;
+  const recent = samples.filter((s) => s.at >= end - windowMs);
+  if (recent.length < MIN_TREND_SAMPLES) return null;
+  if (end - recent[0]!.at < MIN_TREND_SPAN_MS) return null;
+
+  const n = recent.length;
+  const meanT = recent.reduce((sum, s) => sum + s.at, 0) / n;
+  const meanR = recent.reduce((sum, s) => sum + s.rssi, 0) / n;
+  let num = 0;
+  let den = 0;
+  for (const s of recent) {
+    num += (s.at - meanT) * (s.rssi - meanR);
+    den += (s.at - meanT) ** 2;
+  }
+  if (den === 0) return null;
+  return (num / den) * 1_000;
 }

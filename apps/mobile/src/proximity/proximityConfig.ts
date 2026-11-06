@@ -4,16 +4,15 @@ import { create } from 'zustand';
 import { DEFAULT_ZONE_THRESHOLDS, type ZoneThresholds } from './smoothing';
 
 /**
- * Runtime-tunable proximity config. Defaults are IDENTICAL to the constants the
- * pipeline used before extraction — changing nothing — but now a single store
- * the diagnostics screen can tweak live. The pipeline reads this; there is no
- * parallel logic.
+ * Runtime-tunable proximity config: a single store the diagnostics screen can
+ * tweak live. The pipeline reads this; there is no parallel logic.
  */
 export interface ProximityConfig {
   // smoothing
   alpha: number;
   windowMs: number;
-  trendLookback: number;
+  /** Trend window in ms, and the slope (dB/s) needed to call a direction. */
+  trendWindowMs: number;
   trendEps: number;
   // lock gating + hysteresis
   lockSamples: number;
@@ -26,9 +25,10 @@ export interface ProximityConfig {
 
 export const DEFAULT_PROXIMITY_CONFIG: ProximityConfig = {
   alpha: 0.25,
-  windowMs: 2_000,
-  trendLookback: 4,
-  trendEps: 1.5,
+  // The window holds a little more than the trend needs.
+  windowMs: 4_000,
+  trendWindowMs: 3_000,
+  trendEps: 1,
   lockSamples: 3,
   lockWindowMs: 2_000,
   graceMs: 4_000,

@@ -4,6 +4,7 @@ import {
   computeProximity,
   emaSeries,
   isUsableRssi,
+  trendSlope,
   rssiToZone,
   zoneRank,
   type RssiSample,
@@ -98,5 +99,27 @@ describe('isUsableRssi', () => {
     expect(isUsableRssi(0)).toBe(false);
     expect(isUsableRssi(-200)).toBe(false);
     expect(isUsableRssi(Number.NaN)).toBe(false);
+  });
+});
+
+describe('trendSlope: measured in dB per second, not per sample', () => {
+  it('gives the same slope whatever the sampling rate', () => {
+    const fast = Array.from({ length: 31 }, (_, i) => ({ rssi: -80 + i * 0.2, at: i * 100 }));
+    const slow = Array.from({ length: 4 }, (_, i) => ({ rssi: -80 + i * 2, at: i * 1_000 }));
+    expect(trendSlope(fast)).toBeCloseTo(2, 5);
+    expect(trendSlope(slow)).toBeCloseTo(2, 5);
+  });
+
+  it('refuses to call a trend on too little data', () => {
+    expect(trendSlope([])).toBeNull();
+    // Four samples within 300 ms: a burst, not a trend.
+    const burst = [-70, -66, -62, -58].map((rssi, i) => ({ rssi, at: i * 100 }));
+    expect(trendSlope(burst)).toBeNull();
+  });
+
+  it('ignores samples older than the window', () => {
+    const old = { rssi: -40, at: 0 };
+    const flat = Array.from({ length: 10 }, (_, i) => ({ rssi: -70, at: 5_000 + i * 200 }));
+    expect(trendSlope([old, ...flat], 3_000)).toBeCloseTo(0, 5);
   });
 });

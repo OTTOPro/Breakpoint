@@ -17,13 +17,13 @@ function snap(rssi: number, n = 8) {
   return last;
 }
 
-describe('proximityConfig — defaults changed nothing', () => {
-  it('matches the historical constants exactly', () => {
+describe('proximityConfig: defaults', () => {
+  it('matches the documented defaults', () => {
     expect(DEFAULT_PROXIMITY_CONFIG).toEqual({
       alpha: 0.25,
-      windowMs: 2_000,
-      trendLookback: 4,
-      trendEps: 1.5,
+      windowMs: 4_000,
+      trendWindowMs: 3_000,
+      trendEps: 1,
       lockSamples: 3,
       lockWindowMs: 2_000,
       graceMs: 4_000,

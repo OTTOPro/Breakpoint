@@ -27,7 +27,7 @@ describe('ProximityPipeline: silence ages the signal', () => {
   it('empties the window once the samples are older than it', () => {
     const p = new ProximityPipeline();
     feedStrong(p, 10_000);
-    const snap = p.tick(12_500);
+    const snap = p.tick(14_500);
     expect(snap.samples).toHaveLength(0);
     // No fresh signal: the zone is no longer the last strong reading.
     expect(snap.zone).toBe('far');
