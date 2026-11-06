@@ -55,7 +55,7 @@ export const DEFAULT_ZONE_THRESHOLDS: ZoneThresholds = {
 };
 
 /** RSSI thresholds (dBm) for each zone boundary, strongest first. */
-export const ZONE_THRESHOLDS: ReadonlyArray<{ zone: Zone; minRssi: number }> = [
+export const ZONE_THRESHOLDS: readonly { zone: Zone; minRssi: number }[] = [
   { zone: 'social', minRssi: DEFAULT_ZONE_THRESHOLDS.social },
   { zone: 'very_close', minRssi: DEFAULT_ZONE_THRESHOLDS.very_close },
   { zone: 'close', minRssi: DEFAULT_ZONE_THRESHOLDS.close },

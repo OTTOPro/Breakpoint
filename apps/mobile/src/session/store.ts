@@ -151,6 +151,7 @@ export const useSessionStore = create<SessionStoreState>((set) => ({
           };
         default: {
           // Exhaustiveness guard.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const _never: never = msg;
           return prev;
         }

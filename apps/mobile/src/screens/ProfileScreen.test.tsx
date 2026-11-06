@@ -2,14 +2,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { getSessionLabel, useProfileStore } from '../local/profileStore';
+
+import { ProfileScreen } from './ProfileScreen';
+
 // Avoid pulling expo-location (native-only) into jsdom; perms aren't tested here.
 vi.mock('../proximity/permissions', () => ({
   requestProximityPermissions: async () => true,
 }));
-
-import { getSessionLabel, useProfileStore } from '../local/profileStore';
-
-import { ProfileScreen } from './ProfileScreen';
 
 afterEach(cleanup);
 beforeEach(async () => {

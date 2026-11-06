@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -47,7 +47,8 @@ export function HomeScreen({
   const displayName = name.trim() || 'there';
   const initial = displayName.charAt(0).toUpperCase();
 
-  const now = Date.now();
+  // Relative times are computed against the moment the screen opened.
+  const [now] = useState(() => Date.now());
   const recents = entries
     .map(normalizeEntry)
     .sort((a, b) => b.endedAt - a.endedAt)

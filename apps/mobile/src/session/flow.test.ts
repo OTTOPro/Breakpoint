@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { createSession, joinSession } from './api';
+import { engine } from './engineInstance';
+import { ApiError, networkError } from './errors';
+import { startAsInitiator, startAsJoiner } from './flow';
+import { useSessionStore } from './store';
+
 // Mock the native engine and the HTTP client so we exercise flow logic only.
 vi.mock('./engineInstance', () => ({
   engine: { start: vi.fn(async () => {}), confirmMet: vi.fn(), stop: vi.fn() },
@@ -8,12 +14,6 @@ vi.mock('./api', () => ({
   createSession: vi.fn(),
   joinSession: vi.fn(),
 }));
-
-import { createSession, joinSession } from './api';
-import { engine } from './engineInstance';
-import { ApiError, networkError } from './errors';
-import { startAsInitiator, startAsJoiner } from './flow';
-import { useSessionStore } from './store';
 
 const created = {
   sessionId: 's1',

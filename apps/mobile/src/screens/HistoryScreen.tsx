@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,7 +16,8 @@ export function HistoryScreen({ onTab }: { onTab?: (tab: TabKey) => void }) {
     void hydrate();
   }, [hydrate]);
 
-  const now = Date.now();
+  // Relative times are computed against the moment the screen opened.
+  const [now] = useState(() => Date.now());
   const rows = entries
     .map(normalizeEntry)
     .sort((a, b) => b.endedAt - a.endedAt); // newest first

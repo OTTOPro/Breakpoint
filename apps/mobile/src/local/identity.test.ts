@@ -2,12 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock the network layer; exercise the identity orchestration + storage.
-vi.mock('./identityApi', () => ({
-  registerDevice: vi.fn(),
-  updateDeviceName: vi.fn(),
-}));
-
 import {
   ensureDeviceIdentity,
   getDeviceId,
@@ -17,6 +11,12 @@ import {
 import { registerDevice, updateDeviceName } from './identityApi';
 import { useProfileStore } from './profileStore';
 import { getSecret } from './secureStore';
+
+// Mock the network layer; exercise the identity orchestration + storage.
+vi.mock('./identityApi', () => ({
+  registerDevice: vi.fn(),
+  updateDeviceName: vi.fn(),
+}));
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 

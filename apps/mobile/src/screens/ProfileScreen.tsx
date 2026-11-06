@@ -29,10 +29,13 @@ export function ProfileScreen({
     void hydrate();
   }, [hydrate]);
 
-  // Keep the input in sync once the persisted name hydrates.
-  useEffect(() => {
+  // Keep the input in sync once the persisted name hydrates. Adjusting state
+  // during render, rather than in an effect, avoids a second render pass.
+  const [syncedName, setSyncedName] = useState(name);
+  if (name !== syncedName) {
+    setSyncedName(name);
     setDraft(name);
-  }, [name]);
+  }
 
   const recheck = async () => {
     try {
