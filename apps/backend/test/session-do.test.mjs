@@ -215,8 +215,8 @@ async function crit4() {
   await sleep(3500); // let the joinTtl alarm fire
   const after = await status(id);
   assert(
-    "session is gone after the joinTtl alarm (nothing kept)",
-    after.status === 404,
+    "session is gone after the joinTtl alarm (410, nothing kept)",
+    after.status === 410,
     `status=${after.status} state=${after.body.state}`,
   );
 }
@@ -242,8 +242,8 @@ async function crit5() {
   await sleep(200);
   const st = await status(id);
   assert(
-    "session is gone after leave (nothing kept)",
-    st.status === 404,
+    "session is gone after leave (410, nothing kept)",
+    st.status === 410,
     `status=${st.status} state=${st.body.state}`,
   );
 
@@ -345,10 +345,19 @@ async function crit8() {
   await sleep(200);
   const st = await status(id);
   assert(
-    "session, GPS fixes included, is gone after met",
-    st.status === 404,
+    "session, GPS fixes included, is gone after met (410)",
+    st.status === 410,
     `status=${st.status} state=${st.body.state}`,
   );
+
+  const late = await join(id, { joinCapability: cap });
+  assert(
+    "joining an ended session reads as expired, not unknown",
+    late.status === 410 && late.body.error === "session_expired",
+    `status=${late.status} error=${late.body.error}`,
+  );
+  const unknown = await status(crypto.randomUUID());
+  assert("an id that never existed is still 404", unknown.status === 404, `status=${unknown.status}`);
 
   initiator.close();
   joiner.close();

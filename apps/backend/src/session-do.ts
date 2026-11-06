@@ -3,6 +3,7 @@ import {
   DEFAULT_GRACE_MS,
   DEFAULT_JOIN_TTL_MS,
   DEFAULT_MAX_LIFETIME_MS,
+  ENDED_MARKER_MS,
   MAX_GRACE_MS,
   MAX_JOIN_TTL_MS,
   MAX_LIFETIME_MS,
@@ -22,6 +23,8 @@ import {
 } from "./types.js";
 
 const STORAGE_KEY = "session";
+/** Left behind by wipe(): this id was a real session, and it is over. */
+const ENDED_KEY = "ended";
 
 
 
@@ -195,7 +198,7 @@ export class SessionDO {
 
   private async handleJoin(request: Request): Promise<Response> {
     const session = await this.load();
-    if (!session) return jsonResponse({ error: "not_found" }, 404);
+    if (!session) return this.missing();
 
     // Already past `created` => either full or no longer joinable.
     if (session.state !== "created") {
@@ -242,7 +245,7 @@ export class SessionDO {
 
   private async handleStatus(): Promise<Response> {
     const session = await this.load();
-    if (!session) return jsonResponse({ error: "not_found" }, 404);
+    if (!session) return this.missing();
     // Public projection — NO secrets, NO bleUuid.
     return jsonResponse({
       sessionId: session.sessionId,
@@ -256,7 +259,7 @@ export class SessionDO {
 
   private async handleCancel(request: Request): Promise<Response> {
     const session = await this.load();
-    if (!session) return jsonResponse({ error: "not_found" }, 404);
+    if (!session) return this.missing();
     // Only the person who created the invite can call it off.
     const token = request.headers.get("X-Participant-Token") ?? "";
     if (this.roleForToken(session, token) !== "initiator") {
@@ -277,7 +280,7 @@ export class SessionDO {
       return jsonResponse({ error: "expected_websocket" }, 426);
     }
     const session = await this.load();
-    if (!session) return jsonResponse({ error: "not_found" }, 404);
+    if (!session) return this.missing();
     if (TERMINAL_STATES.has(session.state)) {
       return jsonResponse({ error: "session_closed" }, 403);
     }
@@ -484,7 +487,11 @@ export class SessionDO {
 
   async alarm(): Promise<void> {
     const session = await this.load();
-    if (!session) return;
+    if (!session) {
+      // Only the ended marker is left: its time is up.
+      await this.state.storage.deleteAll();
+      return;
+    }
     if (TERMINAL_STATES.has(session.state)) return;
     const now = Date.now();
 
@@ -534,6 +541,18 @@ export class SessionDO {
     this.session = undefined;
     await this.state.storage.deleteAlarm();
     await this.state.storage.deleteAll();
+    // Keep only the fact that it ended, so a late join reads "expired" rather
+    // than "not found"; the alarm removes even that after ENDED_MARKER_MS.
+    await this.state.storage.put(ENDED_KEY, true);
+    await this.state.storage.setAlarm(Date.now() + ENDED_MARKER_MS);
+  }
+
+  /** 410 for a session that existed and ended, 404 for an unknown id. */
+  private async missing(): Promise<Response> {
+    const ended = await this.state.storage.get<boolean>(ENDED_KEY);
+    return ended
+      ? jsonResponse({ error: "session_expired" }, 410)
+      : jsonResponse({ error: "not_found" }, 404);
   }
 
   /** Set the DO alarm to the earliest still-relevant deadline. */
