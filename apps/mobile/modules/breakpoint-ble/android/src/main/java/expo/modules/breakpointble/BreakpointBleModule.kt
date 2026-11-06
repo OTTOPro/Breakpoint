@@ -20,10 +20,6 @@ class BreakpointBleModule : Module() {
 
     Events("onPeerSignal", "onProximityError")
 
-    Function("hello") {
-      "hello from breakpoint-ble (Android)"
-    }
-
     Function("startProximity") { sessionUuid: String ->
       val context = appContext.reactContext ?: return@Function
       ProximityForegroundService.signalListener = { rssi, at ->

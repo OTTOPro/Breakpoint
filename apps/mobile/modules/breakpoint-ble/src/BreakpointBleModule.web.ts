@@ -8,10 +8,6 @@ import type { BreakpointBleModuleEvents } from './BreakpointBle.types';
  * `onPeerSignal` events are ever emitted.
  */
 class BreakpointBleModule extends NativeModule<BreakpointBleModuleEvents> {
-  hello(): string {
-    return 'hello from breakpoint-ble (web)';
-  }
-
   startProximity(_sessionUuid: string): void {
     // no-op on web
   }

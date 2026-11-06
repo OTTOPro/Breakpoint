@@ -17,10 +17,6 @@ public class BreakpointBleModule: Module {
 
     Events("onPeerSignal", "onProximityError")
 
-    Function("hello") { () -> String in
-      "hello from breakpoint-ble (iOS)"
-    }
-
     Function("startProximity") { (sessionUuid: String) in
       self.proximity.onSignal = { [weak self] rssi, at in
         self?.sendEvent("onPeerSignal", [
