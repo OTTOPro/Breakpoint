@@ -8,6 +8,9 @@ import {
 
 import { getBaseUrl } from './api';
 
+/** WebSocket close code for an intentional, normal closure. */
+const NORMAL_CLOSURE = 1000;
+
 export interface WsClientOptions {
   sessionId: string;
   participantToken: string;
@@ -89,8 +92,10 @@ export class SessionWsClient {
       if (msg) this.opts.onMessage(msg);
     });
 
-    ws.addEventListener('close', () => {
-      if (this.closedByUs || !this.opts.reconnect) {
+    ws.addEventListener('close', (ev?: { code?: number }) => {
+      // 1000 is the server closing on purpose (the session ended): final.
+      const serverDone = ev?.code === NORMAL_CLOSURE;
+      if (this.closedByUs || !this.opts.reconnect || serverDone) {
         this.opts.onClose?.({ willReconnect: false });
         return;
       }

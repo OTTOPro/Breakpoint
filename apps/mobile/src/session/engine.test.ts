@@ -167,3 +167,21 @@ describe('SessionEngine: leaving', () => {
     expect(stopProximity).toHaveBeenCalled();
   });
 });
+
+describe('SessionEngine: an ended session is not reconnected to', () => {
+  it('closes its socket and stops the radio when the session ends', async () => {
+    const answer = pendingPermission();
+    const engine = new SessionEngine();
+    void engine.start({ sessionId: 's1', participantToken: 't', role: 'initiator' });
+    ws.onMessage!(SESSION_FRAME);
+    answer(true);
+    await flush();
+    expect(startProximity).toHaveBeenCalled();
+
+    ws.onMessage!({ type: 'ended', reason: 'met' });
+    expect(ws.closed).toBe(1);
+    expect(stopProximity).toHaveBeenCalled();
+    // The end itself is still in the store for the Done / Failure screens.
+    expect(useSessionStore.getState().endedReason).toBe('met');
+  });
+});

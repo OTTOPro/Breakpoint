@@ -11,8 +11,8 @@ class FakeSocket {
   addEventListener(type: string, cb: Handler) {
     (this.listeners[type] ??= []).push(cb);
   }
-  emit(type: string) {
-    (this.listeners[type] ?? []).forEach((cb) => cb());
+  emit(type: string, ev?: unknown) {
+    (this.listeners[type] ?? []).forEach((cb) => cb(ev));
   }
   send() {}
   close() {}
@@ -70,5 +70,37 @@ describe('SessionWsClient — reconnection exhaustion', () => {
     // No further reconnects after exhaustion.
     await new Promise((r) => setTimeout(r, 30));
     expect(sockets.length).toBe(4);
+  });
+});
+
+describe('SessionWsClient: a session closed by the server stays closed', () => {
+  it('does not reconnect after a normal closure (code 1000)', async () => {
+    const sockets: FakeSocket[] = [];
+    const factory = (_url: string) => {
+      const s = new FakeSocket();
+      sockets.push(s);
+      setTimeout(() => s.emit('close', { code: 1000 }), 0);
+      return s as unknown as WebSocket;
+    };
+    const onExhausted = vi.fn();
+    const closes: boolean[] = [];
+    const client = new SessionWsClient({
+      sessionId: 's',
+      participantToken: 't',
+      baseUrl: 'http://x',
+      onMessage: () => {},
+      onClose: (info) => closes.push(info.willReconnect),
+      onExhausted,
+      reconnectDelayMs: 1,
+      maxReconnectDelayMs: 1,
+      socketFactory: factory,
+    });
+
+    client.connect();
+    await until(() => closes.length === 1);
+    await new Promise((r) => setTimeout(r, 30));
+    expect(sockets.length).toBe(1);
+    expect(closes).toEqual([false]);
+    expect(onExhausted).not.toHaveBeenCalled();
   });
 });

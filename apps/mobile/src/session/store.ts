@@ -113,6 +113,20 @@ const INITIAL = {
   error: undefined as AppError | undefined,
 };
 
+/** Terminal session state for the reason the server gives in 'ended'. */
+export function stateForEndedReason(reason: string): SessionState {
+  switch (reason) {
+    case 'met':
+      return 'ended';
+    case 'cancelled':
+      return 'cancelled';
+    case 'abandoned':
+      return 'abandoned';
+    default:
+      return 'expired'; // join_ttl, max_lifetime
+  }
+}
+
 export const useSessionStore = create<SessionStoreState>((set) => ({
   ...INITIAL,
 
@@ -158,8 +172,11 @@ export const useSessionStore = create<SessionStoreState>((set) => ({
         case 'peerLeft':
           return { peerPresent: false };
         case 'ended':
+          // The final state rides on this frame: the socket closes right
+          // after it, so a separate 'state' frame may never arrive.
           return {
             endedReason: msg.reason,
+            state: stateForEndedReason(msg.reason),
             connection: 'closed',
           };
         default: {

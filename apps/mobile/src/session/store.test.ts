@@ -84,3 +84,21 @@ describe('session store — server message handling', () => {
     expect(s.tier).toBe('very_close');
   });
 });
+
+describe('session store: the ended frame carries the final state', () => {
+  it('maps every reason to a terminal state', () => {
+    const st = useSessionStore.getState();
+    for (const [reason, state] of [
+      ['met', 'ended'],
+      ['cancelled', 'cancelled'],
+      ['abandoned', 'abandoned'],
+      ['join_ttl', 'expired'],
+      ['max_lifetime', 'expired'],
+    ] as const) {
+      st.reset();
+      st.applyServerMessage({ type: 'ended', reason });
+      expect(useSessionStore.getState().state).toBe(state);
+      expect(useSessionStore.getState().connection).toBe('closed');
+    }
+  });
+});

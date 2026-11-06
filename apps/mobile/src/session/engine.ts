@@ -121,11 +121,22 @@ export class SessionEngine {
 
     // History: write exactly one rich entry on the first terminal signal,
     // whatever the path (met via `ended` reason, or a terminal `state`).
+    let over = false;
     if (msg.type === 'ended') {
       this.recordTerminalOnce(outcomeFromEndedReason(msg.reason));
+      over = true;
     } else if (state) {
       const outcome = outcomeFromState(state);
-      if (outcome) this.recordTerminalOnce(outcome);
+      if (outcome) {
+        this.recordTerminalOnce(outcome);
+        over = true;
+      }
+    }
+    if (over) {
+      // The session is finished on the server: close our side on purpose so
+      // the socket does not try to reconnect to it, and stop the radio.
+      this.stop();
+      return;
     }
 
     // The `session` frame carries the bleUuid (also re-sent on reconnect).
