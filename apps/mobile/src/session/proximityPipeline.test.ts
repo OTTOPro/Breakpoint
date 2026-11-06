@@ -43,3 +43,19 @@ describe('ProximityPipeline: silence ages the signal', () => {
     expect(tiers[tiers.length - 1]).toBe('far');
   });
 });
+
+describe('ProximityPipeline: unusable RSSI values are ignored', () => {
+  it('does not treat the iOS "unavailable" value 127 as a strong signal', () => {
+    const p = new ProximityPipeline();
+    for (let i = 0; i < 6; i++) p.push({ rssi: 127, at: 10_000 + i * 200 });
+    expect(p.tier).toBe('far');
+  });
+
+  it('keeps the real samples around an unusable one', () => {
+    const p = new ProximityPipeline();
+    feedStrong(p, 10_000);
+    const snap = p.push({ rssi: 127, at: 10_100 });
+    expect(snap.samples.every((s) => s.rssi === -60)).toBe(true);
+    expect(snap.zone).toBe('very_close');
+  });
+});

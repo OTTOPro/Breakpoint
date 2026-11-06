@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import {
   computeProximity,
   emaSeries,
+  isUsableRssi,
   rssiToZone,
   zoneRank,
   type RssiSample,
@@ -86,5 +87,16 @@ describe('computeProximity — edge cases', () => {
     const flat = computeProximity(samples([-70, -70, -70, -70, -70, -70]));
     expect(flat.trend).toBe('steady');
     expect(flat.zone).toBe('close');
+  });
+});
+
+describe('isUsableRssi', () => {
+  it('accepts real readings and rejects the sentinels', () => {
+    expect(isUsableRssi(-60)).toBe(true);
+    expect(isUsableRssi(-127)).toBe(true);
+    expect(isUsableRssi(127)).toBe(false);
+    expect(isUsableRssi(0)).toBe(false);
+    expect(isUsableRssi(-200)).toBe(false);
+    expect(isUsableRssi(Number.NaN)).toBe(false);
   });
 });

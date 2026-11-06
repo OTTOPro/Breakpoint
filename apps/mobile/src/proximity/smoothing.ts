@@ -64,6 +64,16 @@ export const ZONE_THRESHOLDS: readonly { zone: Zone; minRssi: number }[] = [
 /** Signal floor used when there are no samples yet. */
 export const NO_SIGNAL_RSSI = -127;
 
+/**
+ * Whether a raw RSSI value is a real measurement. CoreBluetooth reports 127
+ * when the value is unavailable, and a non-negative value is never a real BLE
+ * reading; treated as a sample it would look like the strongest possible
+ * signal and jump straight to "You're here".
+ */
+export function isUsableRssi(rssi: number): boolean {
+  return Number.isFinite(rssi) && rssi < 0 && rssi >= NO_SIGNAL_RSSI;
+}
+
 const DEFAULT_ALPHA = 0.25;
 const DEFAULT_TREND_LOOKBACK = 4;
 const DEFAULT_TREND_EPS = 1.5;

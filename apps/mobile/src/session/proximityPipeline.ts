@@ -4,6 +4,7 @@ import { getProximityConfig } from '../proximity/proximityConfig';
 import {
   NO_SIGNAL_RSSI,
   computeProximity,
+  isUsableRssi,
   type ProximityOptions,
   type ProximityReading,
   type RssiSample,
@@ -65,6 +66,7 @@ export class ProximityPipeline {
 
   /** Feed one raw sample; returns the latest snapshot. */
   push(sample: RssiSample, distanceM?: number): PipelineSnapshot {
+    if (!isUsableRssi(sample.rssi)) return this.tick(sample.at, distanceM);
     this.samples.push(sample);
     return this.evaluate(sample.at, sample.rssi, distanceM);
   }
