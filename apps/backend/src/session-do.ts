@@ -1,5 +1,14 @@
 import { formatBleUuid, type Tier } from "@breakpoint/protocol";
 import {
+  DEFAULT_GRACE_MS,
+  DEFAULT_JOIN_TTL_MS,
+  DEFAULT_MAX_LIFETIME_MS,
+  MAX_GRACE_MS,
+  MAX_JOIN_TTL_MS,
+  MAX_LIFETIME_MS,
+  boundedMs,
+} from "./limits.js";
+import {
   ACTIVE_STATES,
   TERMINAL_STATES,
   type ClientWsMessage,
@@ -14,9 +23,7 @@ import {
 
 const STORAGE_KEY = "session";
 
-const DEFAULT_JOIN_TTL_MS = 5 * 60_000; // 5 min
-const DEFAULT_MAX_LIFETIME_MS = 60 * 60_000; // 60 min
-const DEFAULT_GRACE_MS = 90_000; // 90 s
+
 
 /** Unambiguous join-code alphabet (no O/0, I/1). */
 const JOIN_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -143,9 +150,9 @@ export class SessionDO {
 
     const sessionToken = toHex(randomBytes(32));
     const bleUuid = await deriveBleUuid(sessionToken);
-    const joinTtlMs = body.joinTtlMs ?? DEFAULT_JOIN_TTL_MS;
-    const maxLifetimeMs = body.maxLifetimeMs ?? DEFAULT_MAX_LIFETIME_MS;
-    const graceMs = body.graceMs ?? DEFAULT_GRACE_MS;
+    const joinTtlMs = boundedMs(body.joinTtlMs, DEFAULT_JOIN_TTL_MS, MAX_JOIN_TTL_MS);
+    const maxLifetimeMs = boundedMs(body.maxLifetimeMs, DEFAULT_MAX_LIFETIME_MS, MAX_LIFETIME_MS);
+    const graceMs = boundedMs(body.graceMs, DEFAULT_GRACE_MS, MAX_GRACE_MS);
 
     const session: SessionRecord = {
       sessionId: body.sessionId,

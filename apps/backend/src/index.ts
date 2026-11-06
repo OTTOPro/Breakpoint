@@ -20,7 +20,8 @@ app.get("/health", (c) => c.json({ ok: true }));
 
 /**
  * Create a session.
- * Body may carry test overrides: { joinTtlMs?, maxLifetimeMs?, graceMs? }.
+ * Body may ask for shorter timings: { joinTtlMs?, maxLifetimeMs?, graceMs? }.
+ * The Durable Object caps them (see limits.ts); a client cannot extend a session.
  * Returns { sessionId, joinCode, joinUrl, participantToken } — never the bleUuid.
  */
 app.post("/sessions", async (c) => {
