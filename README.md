@@ -11,7 +11,7 @@ Two people agree to meet in a park. The park is big, the phones say they are 30 
 
 ## How it works
 
-Both phones join a short-lived session on the server and receive a private Bluetooth identifier for it, and start advertising and scanning over BLE. Signal strength is noisy, so the app does not try to compute a distance; it watches the signal trend over a few seconds and shows a simple hotter or colder signal. The server side is a Cloudflare Worker with one Durable Object per session, which holds the pairing state and expires on its own. The session holds the last known position of each phone while it runs and clears it when it ends. No account, nothing kept afterwards.
+Both phones join a short-lived session on the server and receive a private Bluetooth identifier for it, then start advertising and scanning over BLE. Signal strength is noisy, so the app does not try to compute a distance; it watches the signal trend over a few seconds and shows a simple hotter or colder signal. The server side is a Cloudflare Worker with one Durable Object per session, which holds the pairing state and expires on its own. The session holds the last known position of each phone while it runs and clears it when it ends. No account, nothing kept afterwards.
 
 ## Stack
 
@@ -19,7 +19,7 @@ Expo and React Native with a native BLE module, Hono on Cloudflare Workers, a Du
 
 ## Status
 
-Version 3 in progress. The backend, the session protocol and the signal processing are covered by unit and integration tests and run locally and on the web build, where proximity is simulated from the diagnostics screen. The native Bluetooth module for Android and iOS is written but not yet tested on two real phones, so outdoor and indoor reliability is still unmeasured; iOS does not keep scanning in the background yet. This is a side project I pick up between other things.
+Version 3 in progress. The backend, the session protocol and the signal processing are covered by unit and integration tests and run locally and on the web build, where in development a console function feeds a running session a simulated Bluetooth signal. The native Bluetooth module for Android and iOS is written but has not yet been built or tested on a real device, so outdoor and indoor reliability is still unmeasured; iOS does not keep scanning in the background yet. This is a side project I pick up between other things.
 
 ## Run it
 
