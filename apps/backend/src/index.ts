@@ -71,11 +71,17 @@ app.get("/sessions/:id", async (c) => {
   });
 });
 
-/** Initiator cancels a not-yet-joined session. */
+/**
+ * Initiator cancels a not-yet-joined session.
+ * Requires the initiator's participantToken (X-Participant-Token header).
+ */
 app.post("/sessions/:id/cancel", async (c) => {
   const sessionId = c.req.param("id");
   const stub = stubFor(c.env, sessionId);
-  const res = await stub.fetch("https://do/cancel", { method: "POST" });
+  const res = await stub.fetch("https://do/cancel", {
+    method: "POST",
+    headers: { "X-Participant-Token": c.req.header("X-Participant-Token") ?? "" },
+  });
   return new Response(res.body, {
     status: res.status,
     headers: { "content-type": "application/json" },

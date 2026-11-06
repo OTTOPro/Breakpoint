@@ -138,7 +138,7 @@ export class SessionDO {
       case "/status":
         return this.handleStatus();
       case "/cancel":
-        return this.handleCancel();
+        return this.handleCancel(request);
       default:
         return jsonResponse({ error: "not_found" }, 404);
     }
@@ -254,9 +254,14 @@ export class SessionDO {
     });
   }
 
-  private async handleCancel(): Promise<Response> {
+  private async handleCancel(request: Request): Promise<Response> {
     const session = await this.load();
     if (!session) return jsonResponse({ error: "not_found" }, 404);
+    // Only the person who created the invite can call it off.
+    const token = request.headers.get("X-Participant-Token") ?? "";
+    if (this.roleForToken(session, token) !== "initiator") {
+      return jsonResponse({ error: "invalid_token" }, 403);
+    }
     if (session.state === "created") {
       session.state = "cancelled";
       await this.save(session);

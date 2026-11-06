@@ -354,6 +354,28 @@ async function crit8() {
   joiner.close();
 }
 
+async function crit9() {
+  console.log("\n(9) cancel needs the initiator's token");
+  const c = await createSession();
+  const id = c.body.sessionId;
+  const cancel = (token) =>
+    fetch(`${BASE}/sessions/${id}/cancel`, {
+      method: "POST",
+      headers: token ? { "X-Participant-Token": token } : {},
+    });
+
+  const anon = await cancel(undefined);
+  assert("cancel without a token is refused", anon.status === 403, `status=${anon.status}`);
+  const wrong = await cancel("not-a-token");
+  assert("cancel with a wrong token is refused", wrong.status === 403, `status=${wrong.status}`);
+  const still = await status(id);
+  assert("session still open after refused cancels", still.body.state === "created", still.body.state);
+
+  const ok = await cancel(c.body.participantToken);
+  const body = await ok.json();
+  assert("initiator can cancel", ok.status === 200 && body.state === "cancelled", `status=${ok.status} state=${body.state}`);
+}
+
 /* ------------------------------- main ----------------------------------- */
 
 async function main() {
@@ -377,6 +399,7 @@ async function main() {
   await crit6();
   await crit7();
   await crit8();
+  await crit9();
 
   console.log("\n=================== SUMMARY ===================");
   for (const r of results) {
