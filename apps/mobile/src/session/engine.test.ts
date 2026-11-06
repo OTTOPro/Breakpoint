@@ -18,6 +18,8 @@ import { useSessionStore } from './store';
 // can deliver the `session` frame whenever it wants.
 const ws = vi.hoisted(() => ({
   onMessage: undefined as undefined | ((msg: unknown) => void),
+  sent: [] as string[],
+  closed: 0,
 }));
 
 vi.mock('./wsClient', () => ({
@@ -26,10 +28,15 @@ vi.mock('./wsClient', () => ({
       ws.onMessage = opts.onMessage;
     }
     connect() {}
-    close() {}
+    close() {
+      ws.closed += 1;
+    }
     sendTier() {}
     sendGps() {}
     sendMet() {}
+    sendLeave() {
+      ws.sent.push('leave');
+    }
   },
 }));
 vi.mock('../../modules/breakpoint-ble', () => ({
@@ -74,6 +81,8 @@ const flush = () => new Promise((r) => setTimeout(r, 0));
 beforeEach(() => {
   useSessionStore.getState().reset();
   vi.clearAllMocks();
+  ws.sent = [];
+  ws.closed = 0;
 });
 afterEach(() => vi.useRealTimers());
 
@@ -144,5 +153,17 @@ describe('SessionEngine: native failures reach the screen', () => {
     expect(radioIssueFor('unsupported')).toBe('unsupported');
     expect(radioIssueFor('advertise_failed')).toBe('failed');
     expect(radioIssueFor('scan_failed')).toBe('failed');
+  });
+});
+
+describe('SessionEngine: leaving', () => {
+  it('tells the server before closing the socket', () => {
+    pendingPermission();
+    const engine = new SessionEngine();
+    void engine.start({ sessionId: 's1', participantToken: 't', role: 'joiner' });
+    engine.leave();
+    expect(ws.sent).toEqual(['leave']);
+    expect(ws.closed).toBe(1);
+    expect(stopProximity).toHaveBeenCalled();
   });
 });

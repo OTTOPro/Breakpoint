@@ -79,6 +79,6 @@ export function confirmMet(): void {
 }
 
 export function leaveSession(): void {
-  engine.stop();
+  engine.leave();
   useSessionStore.getState().reset();
 }

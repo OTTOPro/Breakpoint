@@ -187,6 +187,16 @@ export class SessionEngine {
     this.onSignal({ rssi, at });
   }
 
+  /**
+   * The user leaves: tell the other phone through the server, then stop.
+   * Sent before the socket closes, so the peer sees "left" at once instead of
+   * waiting for the session to expire.
+   */
+  leave(): void {
+    this.ws?.sendLeave();
+    this.stop();
+  }
+
   stop(): void {
     this.running = false;
     this.gpsWatch?.remove();

@@ -8,7 +8,12 @@ import { useSessionStore } from './store';
 
 // Mock the native engine and the HTTP client so we exercise flow logic only.
 vi.mock('./engineInstance', () => ({
-  engine: { start: vi.fn(async () => {}), confirmMet: vi.fn(), stop: vi.fn() },
+  engine: {
+    start: vi.fn(async () => {}),
+    confirmMet: vi.fn(),
+    stop: vi.fn(),
+    leave: vi.fn(),
+  },
 }));
 vi.mock('./api', () => ({
   createSession: vi.fn(),
