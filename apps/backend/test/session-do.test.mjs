@@ -146,8 +146,8 @@ async function crit1() {
   const id = c.body.sessionId;
   const initiatorToken = c.body.participantToken;
   const j = await join(id, { joinCapability: undefined });
-  // join needs the real capability — fetch it from create's joinUrl.
-  const cap = new URL(c.body.joinUrl).searchParams.get("cap");
+  // join needs the real capability: it lives in the joinUrl fragment (#cap=).
+  const cap = new URLSearchParams(new URL(c.body.joinUrl).hash.slice(1)).get("cap");
   const j2 = await join(id, { joinCapability: cap });
   assert("join succeeds with valid capability", j2.status === 200, `status ${j2.status}`);
   const joinerToken = j2.body.participantToken;
@@ -195,7 +195,7 @@ async function crit3() {
   console.log("\n(3) third join -> rejected (session full)");
   const c = await createSession();
   const id = c.body.sessionId;
-  const cap = new URL(c.body.joinUrl).searchParams.get("cap");
+  const cap = new URLSearchParams(new URL(c.body.joinUrl).hash.slice(1)).get("cap");
   const first = await join(id, { joinCapability: cap });
   assert("first join (2nd participant) accepted", first.status === 200, `status ${first.status}`);
   const third = await join(id, { joinCapability: cap });
@@ -225,7 +225,7 @@ async function crit5() {
   console.log("\n(5) leave -> peer gets peerLeft, state abandoned");
   const c = await createSession();
   const id = c.body.sessionId;
-  const cap = new URL(c.body.joinUrl).searchParams.get("cap");
+  const cap = new URLSearchParams(new URL(c.body.joinUrl).hash.slice(1)).get("cap");
   const j = await join(id, { joinCapability: cap });
 
   const initiator = new WsClient(id, c.body.participantToken, "initiator");
@@ -251,7 +251,7 @@ async function crit6() {
   console.log("\n(6) WS drop + reconnect with same participantToken -> state preserved");
   const c = await createSession();
   const id = c.body.sessionId;
-  const cap = new URL(c.body.joinUrl).searchParams.get("cap");
+  const cap = new URLSearchParams(new URL(c.body.joinUrl).hash.slice(1)).get("cap");
   const j = await join(id, { joinCapability: cap });
   const joinerToken = j.body.participantToken;
 
@@ -288,7 +288,7 @@ async function crit7() {
   console.log("\n(7) bleUuid only ever appears in the first WS message");
   const c = await createSession();
   const id = c.body.sessionId;
-  const cap = new URL(c.body.joinUrl).searchParams.get("cap");
+  const cap = new URLSearchParams(new URL(c.body.joinUrl).hash.slice(1)).get("cap");
   const j = await join(id, { joinCapability: cap });
 
   const initiator = new WsClient(id, c.body.participantToken, "initiator");
