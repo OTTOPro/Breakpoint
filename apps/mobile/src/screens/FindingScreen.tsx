@@ -1,9 +1,12 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
 import { arrowRotation, haversineDistance } from '../location/geo';
 import { useSessionStore } from '../session/store';
 import { findingVisual, radioIssueText } from '../ui/proximityVisual';
 import { Fonts } from '../ui/tokens';
+
+const ARROW_SIZE = 150;
 
 export interface FindingScreenProps {
   onExit?: () => void;
@@ -94,7 +97,11 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
               },
             ]}
           >
-            <Text style={[styles.arrowGlyph, { color: v.ink }]}>▲</Text>
+            {/* A navigation arrow, not a triangle: an equilateral shape has no
+                visible tip once rotated, so the direction would be unreadable. */}
+            <Svg width={ARROW_SIZE} height={ARROW_SIZE} viewBox="0 0 100 100">
+              <Path d="M50 6 L86 92 L50 72 L14 92 Z" fill={v.ink} />
+            </Svg>
           </View>
         )}
 
@@ -166,7 +173,6 @@ const styles = StyleSheet.create({
   ringInner: { width: 190, height: 190, borderRadius: 95 },
   dot: { width: 18, height: 18, borderRadius: 9 },
   arrow: {},
-  arrowGlyph: { fontSize: 130, fontFamily: Fonts.sans },
   meters: { position: 'absolute', bottom: 46, fontSize: 56, fontWeight: '600', fontFamily: Fonts.sans },
   footer: { width: '100%', paddingHorizontal: 30, paddingBottom: 70, alignItems: 'center' },
   title: { fontSize: 26, fontWeight: '600', fontFamily: Fonts.sans },
