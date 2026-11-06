@@ -21,7 +21,7 @@ export default function BluetoothRoute() {
       glyphBg="#C7DBE2"
       glyphColor="#2C4A54"
       title="Turn on Bluetooth"
-      body="It’s how your phones sense each other up close — way tighter than GPS when you’re nearly there. We only ask now because you’re about to need it."
+      body="It’s how your phones sense each other up close, way tighter than GPS when you’re nearly there. We only ask now because you’re about to need it."
       primaryLabel="Allow Bluetooth"
       onAllow={next}
       onSkip={() => router.push('/location')}

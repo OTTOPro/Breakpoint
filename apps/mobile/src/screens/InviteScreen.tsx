@@ -30,7 +30,7 @@ export function InviteScreen({ onClose }: { onClose?: () => void }) {
   const peerPresent = useSessionStore((s) => s.peerPresent);
   const [copied, setCopied] = useState(false);
 
-  const display = joinCode ? formatCode(joinCode) : '— — —';
+  const display = joinCode ? formatCode(joinCode) : '· · ·';
   const capability = joinUrl ? parseJoinUrl(joinUrl)?.capability : undefined;
   const shareLink =
     sessionId && capability
@@ -55,7 +55,7 @@ export function InviteScreen({ onClose }: { onClose?: () => void }) {
       </View>
 
       <View style={styles.body}>
-        <Text style={styles.lead}>Send the link to the person you&apos;re meeting — or share the code.</Text>
+        <Text style={styles.lead}>Send the link to the person you&apos;re meeting, or share the code.</Text>
         <View testID="invite-qr" style={styles.qr}>
           <View style={styles.qrInner} />
         </View>
@@ -81,7 +81,7 @@ export function InviteScreen({ onClose }: { onClose?: () => void }) {
       <View testID="invite-status" style={styles.waitRow}>
         <View style={[styles.dot, { backgroundColor: peerPresent ? Palette.pink : Palette.ink }]} />
         <Text style={styles.waitText}>
-          {peerPresent ? 'they’re here — starting…' : 'waiting for someone…'}
+          {peerPresent ? 'they’re here, starting…' : 'waiting for someone…'}
         </Text>
       </View>
     </SafeAreaView>

@@ -21,7 +21,7 @@ export function OnboardingScreen({ onStart }: { onStart?: () => void }) {
           <Text style={styles.title}>Meet up without the runaround.</Text>
           <Text style={styles.copy}>
             Two of you, same place, can&apos;t find each other. BreakPoint guides
-            you to the exact spot — down to the last few feet. No tracking, no
+            you to the exact spot, down to the last few feet. No tracking, no
             feed. One job.
           </Text>
         </View>

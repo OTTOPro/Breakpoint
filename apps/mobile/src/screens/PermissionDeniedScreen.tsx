@@ -33,7 +33,7 @@ export function PermissionDeniedScreen({
             BreakPoint needs Bluetooth
           </Text>
           <Text style={styles.copy}>
-            The last few feet are found over Bluetooth — without it, we can&apos;t
+            The last few feet are found over Bluetooth. Without it, we can&apos;t
             guide you to the exact spot. Turn it on in Settings, then come back
             and try again.
           </Text>

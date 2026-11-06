@@ -72,7 +72,7 @@ export function HomeScreen({
           onPress={pending ? undefined : onFind}
           disabled={pending}
           accessibilityRole="button"
-          accessibilityLabel="Find someone — create a meeting point"
+          accessibilityLabel="Find someone: create a meeting point"
           accessibilityState={{ disabled: pending }}
           style={[styles.findCard, pending && styles.findCardPending]}
         >
@@ -136,7 +136,7 @@ export function HomeScreen({
 
         {recents.length === 0 ? (
           <View testID="home-recents-empty" style={styles.recentsEmpty}>
-            <Text style={styles.recentsEmptyText}>No meetups yet — find someone above.</Text>
+            <Text style={styles.recentsEmptyText}>No meetups yet. Find someone above.</Text>
           </View>
         ) : (
           <View style={styles.recentsList}>

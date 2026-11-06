@@ -41,11 +41,11 @@ export function mapJoinStatus(status: number, code?: string): ApiError {
     case 403:
       return new ApiError('invalid_code', 403, "That code didn't match. Double-check it and try again.", code);
     case 404:
-      return new ApiError('not_found', 404, "We couldn't find that session — the link may be wrong.", code);
+      return new ApiError('not_found', 404, "We couldn't find that session. The link may be wrong.", code);
     case 409:
       return new ApiError('full', 409, 'That session is already full.', code);
     case 410:
-      return new ApiError('expired', 410, 'That invite has expired — ask for a new one.', code);
+      return new ApiError('expired', 410, 'That invite has expired. Ask for a new one.', code);
     default:
       return new ApiError(status >= 500 ? 'server' : 'unknown', status, "Couldn't join the session. Please try again.", code);
   }

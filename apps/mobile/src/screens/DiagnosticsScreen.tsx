@@ -93,16 +93,16 @@ export function DiagnosticsScreen({ onClose }: { onClose?: () => void }) {
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Readouts */}
         <View style={styles.card}>
-          <Readout testID="diag-raw" label="RSSI (raw)" value={latest ? `${latest.raw} dBm` : '—'} />
-          <Readout testID="diag-smoothed" label="RSSI (smoothed)" value={latest ? `${latest.rssiSmoothed.toFixed(1)} dBm` : '—'} />
-          <Readout testID="diag-zone" label="Zone" value={latest ? latest.zone : '—'} />
-          <Readout testID="diag-trend" label="Trend" value={latest ? latest.trend : '—'} />
+          <Readout testID="diag-raw" label="RSSI (raw)" value={latest ? `${latest.raw} dBm` : '-'} />
+          <Readout testID="diag-smoothed" label="RSSI (smoothed)" value={latest ? `${latest.rssiSmoothed.toFixed(1)} dBm` : '-'} />
+          <Readout testID="diag-zone" label="Zone" value={latest ? latest.zone : '-'} />
+          <Readout testID="diag-trend" label="Trend" value={latest ? latest.trend : '-'} />
           <Readout
             testID="diag-lock"
             label="BLE lock"
-            value={latest ? `${latest.locked ? 'yes' : 'no'} (${latest.lockCount} in window)` : '—'}
+            value={latest ? `${latest.locked ? 'yes' : 'no'} (${latest.lockCount} in window)` : '-'}
           />
-          <Readout testID="diag-tier" label="Tier" value={latest ? latest.tier : '—'} />
+          <Readout testID="diag-tier" label="Tier" value={latest ? latest.tier : '-'} />
         </View>
 
         {/* Sparkline */}

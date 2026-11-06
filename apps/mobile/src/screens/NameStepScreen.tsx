@@ -32,7 +32,7 @@ export function NameStepScreen({ onDone }: { onDone?: () => void }) {
         <View>
           <Text style={styles.title}>What should we call you?</Text>
           <Text style={styles.copy}>
-            This is the only thing the other person sees — your label while you
+            This is the only thing the other person sees: your label while you
             find each other.
           </Text>
         </View>

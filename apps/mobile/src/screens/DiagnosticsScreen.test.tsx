@@ -47,6 +47,6 @@ describe('DiagnosticsScreen', () => {
     inject(r, 3);
     expect(r.getByTestId('diag-raw').textContent).toContain('-64');
     fireEvent.click(r.getByTestId('diag-clear'));
-    expect(r.getByTestId('diag-raw').textContent).toBe('—');
+    expect(r.getByTestId('diag-raw').textContent).toBe('-');
   });
 });

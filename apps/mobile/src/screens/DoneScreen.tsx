@@ -13,7 +13,7 @@ export function DoneScreen({ onDone }: { onDone?: () => void }) {
           <Text style={styles.checkText}>✓</Text>
         </View>
         <View>
-          <Text style={styles.title}>Nice — you found each other.</Text>
+          <Text style={styles.title}>Nice, you found each other.</Text>
           <Text style={styles.copy}>Session closed. Nothing&apos;s still sharing your location.</Text>
         </View>
       </View>
