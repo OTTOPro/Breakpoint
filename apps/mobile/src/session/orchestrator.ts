@@ -3,7 +3,7 @@ import type { Tier } from '@breakpoint/protocol';
 import type { RssiSample, Zone } from '../proximity/smoothing';
 
 /**
- * Tier orchestrator — the brain. PURE given its internal state.
+ * Tier orchestrator: the brain. PURE given its internal state.
  *
  * Decides the *displayed* tier from physics:
  *  - BLE scans from the start, in parallel with GPS.
@@ -13,7 +13,7 @@ import type { RssiSample, Zone } from '../proximity/smoothing';
  *
  * Hysteresis prevents UI flapping:
  *  - Promotion to BLE needs `lockSamples` samples within `lockWindowMs`.
- *  - Demotion back to GPS only after `graceMs` of silence — a brief drop is
+ *  - Demotion back to GPS only after `graceMs` of silence: a brief drop is
  *    absorbed.
  */
 export type OrchestratorConfig = {
@@ -88,7 +88,7 @@ export class TierOrchestrator {
     if (hasFreshLock) {
       this.locked = true;
     } else if (this.locked && now - this.lastSignalAt > graceMs) {
-      // Silence beyond the grace period — drop back to GPS guidance.
+      // Silence beyond the grace period: drop back to GPS guidance.
       this.locked = false;
     }
 

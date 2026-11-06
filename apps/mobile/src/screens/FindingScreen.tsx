@@ -11,7 +11,7 @@ export interface FindingScreenProps {
 }
 
 /**
- * Finding — the live core. Full focus, NO navbar. Reads `tier`,
+ * Finding: the live core. Full focus, NO navbar. Reads `tier`,
  * `proximity` (zone/trend/rssiSmoothed) and `peerGps` from the store and
  * re-renders as the physics change. The cold→warm accent is driven by the
  * real-time proximity value, continuously and in both directions.

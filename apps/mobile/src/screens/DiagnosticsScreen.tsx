@@ -39,7 +39,7 @@ function Stepper({
 }
 
 /**
- * Proximity diagnostics — a DEV tool. It drives the SAME {@link ProximityPipeline}
+ * Proximity diagnostics: a DEV tool. It drives the SAME {@link ProximityPipeline}
  * the app uses (no parallel logic): inject RSSI, watch raw/smoothed/zone/trend/
  * lock/tier, see the sparkline, and tune `proximityConfig` live.
  */
@@ -54,7 +54,7 @@ export function DiagnosticsScreen({ onClose }: { onClose?: () => void }) {
   const atRef = useRef(0);
 
   // Replay the buffered raw signal through a fresh pipeline using the CURRENT
-  // config on every render — so tuning re-evaluates the same signal instantly.
+  // config on every render, so tuning re-evaluates the same signal instantly.
   // (Cheap: history is capped. `config` below makes renders track tuning.)
   const pipe = new ProximityPipeline();
   const snapshots = history.map((s) => pipe.push(s));

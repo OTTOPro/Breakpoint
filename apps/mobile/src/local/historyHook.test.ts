@@ -47,7 +47,7 @@ describe('terminal-outcome mapping (every terminal path → right outcome)', () 
   });
 });
 
-describe('engine history hook — records a rich entry on each terminal outcome', () => {
+describe('engine history hook: records a rich entry on each terminal outcome', () => {
   it.each(['met', 'abandoned', 'expired', 'lost'] as HistoryOutcome[])(
     'records outcome=%s with peerLabel, startedAt, endedAt, durationMs',
     async (outcome) => {

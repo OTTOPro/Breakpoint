@@ -12,7 +12,7 @@ beforeEach(async () => {
   useProfileStore.setState({ name: '', onboardingComplete: false, hydrated: false });
 });
 
-describe('NameStepScreen — onboarding name capture', () => {
+describe('NameStepScreen: onboarding name capture', () => {
   it('writes the typed name into profileStore and feeds the session label', async () => {
     const onDone = vi.fn();
     const r = render(<NameStepScreen onDone={onDone} />);

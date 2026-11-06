@@ -3,7 +3,7 @@
  * fragment (`…#cap=…`): fragments are never sent to servers (no access logs)
  * nor leaked via the Referer header. The sessionId (a random routing id, not a
  * secret) sits in the query. The capability then travels in the POST /join
- * body — never in a URL the network can see.
+ * body: never in a URL the network can see.
  */
 export interface JoinLink {
   sessionId: string;

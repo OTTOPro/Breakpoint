@@ -17,7 +17,7 @@ import { Fonts, Palette, Radius } from '../ui/tokens';
 
 const RECENTS_PREVIEW = 3;
 
-/** Home launcher — dynamic greeting, the find/join actions, and a live
+/** Home launcher: dynamic greeting, the find/join actions, and a live
  *  preview of recent meetups. No static placeholders. No map (device phase). */
 export function HomeScreen({
   onFind,
@@ -81,7 +81,7 @@ export function HomeScreen({
           </View>
           <Text style={styles.findTitle}>{pending ? 'Starting…' : 'Find someone'}</Text>
           <Text style={styles.findSub}>create a meeting point</Text>
-          {/* Proximity gradient accent (cold→warm). Static — reduced-motion safe. */}
+          {/* Proximity gradient accent (cold→warm). Static, reduced-motion safe. */}
           <View style={styles.accent}>
             <View style={[styles.accentSeg, { backgroundColor: Palette.teal }]} />
             <View style={[styles.accentSeg, { backgroundColor: Palette.lavender }]} />

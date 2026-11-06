@@ -39,12 +39,12 @@ export interface PipelineSnapshot {
 }
 
 /**
- * Pure proximity pipeline — NO native, NO React Native. Buffers raw RSSI,
+ * Pure proximity pipeline: NO native, NO React Native. Buffers raw RSSI,
  * smooths to a zone, and runs the {@link TierOrchestrator}.
  *
  * It reads the live {@link getProximityConfig} on every push (so the
  * diagnostics screen can tune in real time), unless explicit overrides were
- * passed to the constructor. This is the SAME pipeline the app/engine uses —
+ * passed to the constructor. This is the SAME pipeline the app/engine uses, 
  * the diagnostics screen drives this exact class, no parallel logic.
  */
 export class ProximityPipeline {

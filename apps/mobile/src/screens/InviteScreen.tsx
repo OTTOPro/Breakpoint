@@ -20,7 +20,7 @@ function copyToClipboard(text: string): void {
 }
 
 /**
- * Invite & wait — shows the joinCode + a shareable link (capability kept in the
+ * Invite & wait: shows the joinCode + a shareable link (capability kept in the
  * URL fragment) and a waiting state driven by `peerPresent`. Never the bleUuid.
  */
 export function InviteScreen({ onClose }: { onClose?: () => void }) {

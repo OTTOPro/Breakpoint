@@ -27,7 +27,7 @@ export const ACTIVE_STATES: ReadonlySet<SessionState> = new Set([
   "social_handoff",
 ]);
 
-/** Terminal states — nothing more happens. */
+/** Terminal states: nothing more happens. */
 export const TERMINAL_STATES: ReadonlySet<SessionState> = new Set([
   "ended",
   "expired",

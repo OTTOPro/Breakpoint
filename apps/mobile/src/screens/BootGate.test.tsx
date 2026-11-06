@@ -12,7 +12,7 @@ beforeEach(async () => {
   useProfileStore.setState({ name: '', onboardingComplete: false, hydrated: false });
 });
 
-describe('BootGate — first-launch routing', () => {
+describe('BootGate: first-launch routing', () => {
   it('empty storage → routes to onboarding', async () => {
     const onRoute = vi.fn();
     render(<BootGate onRoute={onRoute} />);
@@ -35,7 +35,7 @@ describe('BootGate — first-launch routing', () => {
     expect(r.getByTestId('boot-splash')).toBeTruthy();
     expect(onRoute).not.toHaveBeenCalled();
 
-    // Once hydrated, it goes home — never to onboarding.
+    // Once hydrated, it goes home, never to onboarding.
     await waitFor(() => expect(onRoute).toHaveBeenCalledTimes(1));
     expect(onRoute).toHaveBeenCalledWith('home');
     expect(onRoute).not.toHaveBeenCalledWith('onboarding');

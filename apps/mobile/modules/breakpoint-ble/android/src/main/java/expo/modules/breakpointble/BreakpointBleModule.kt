@@ -6,7 +6,7 @@ import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
 /**
- * BreakpointBle — Android proximity.
+ * BreakpointBle: Android proximity.
  *
  * Connectionless: the phone advertises the session UUID as a service AND scans
  * for that same service UUID. The actual radio work runs in a foreground

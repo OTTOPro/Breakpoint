@@ -18,7 +18,7 @@ export interface PermissionScreenProps {
 }
 
 /**
- * Permission ask — calm, monochrome setup. Asked at the right moment (just
+ * Permission ask: calm, monochrome setup. Asked at the right moment (just
  * before it's needed), with a clear explanation.
  */
 export function PermissionScreen(props: PermissionScreenProps) {

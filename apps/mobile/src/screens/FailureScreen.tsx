@@ -41,7 +41,7 @@ export function failureCopy(input: {
   };
 }
 
-/** Failure screen — reads the authoritative store state and explains it. */
+/** Failure screen: reads the authoritative store state and explains it. */
 export function FailureScreen({ onHome }: { onHome?: () => void }) {
   const state = useSessionStore((s) => s.state);
   const connection = useSessionStore((s) => s.connection);

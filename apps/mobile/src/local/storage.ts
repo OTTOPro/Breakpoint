@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
- * Tiny local-storage wrapper (AsyncStorage under the hood — localStorage on
+ * Tiny local-storage wrapper (AsyncStorage under the hood, localStorage on
  * web, native KV on device). Everything in this app's "local" layer is phone-
  * only: no backend persistence (the DO stays ephemeral).
  */

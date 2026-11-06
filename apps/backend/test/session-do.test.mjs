@@ -22,7 +22,7 @@ function record(name, ok, detail) {
   results.push({ name, ok, detail });
   if (!ok) failures++;
   const tag = ok ? "PASS" : "FAIL";
-  console.log(`  [${tag}] ${name}${detail ? ` — ${detail}` : ""}`);
+  console.log(`  [${tag}] ${name}${detail ? `: ${detail}` : ""}`);
 }
 
 function assert(name, cond, detail) {

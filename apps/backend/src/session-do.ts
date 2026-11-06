@@ -246,7 +246,7 @@ export class SessionDO {
   private async handleStatus(): Promise<Response> {
     const session = await this.load();
     if (!session) return this.missing();
-    // Public projection — NO secrets, NO bleUuid.
+    // Public projection: NO secrets, NO bleUuid.
     return jsonResponse({
       sessionId: session.sessionId,
       state: session.state,
@@ -517,7 +517,7 @@ export class SessionDO {
       return;
     }
 
-    // Nothing due yet — re-arm for the next deadline.
+    // Nothing due yet: re-arm for the next deadline.
     await this.armAlarm();
   }
 

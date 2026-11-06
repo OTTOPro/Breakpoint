@@ -4,7 +4,7 @@ import { SessionWsClient } from './wsClient';
 
 type Handler = (ev?: unknown) => void;
 
-/** A WebSocket stand-in that never connects — it closes right after open. */
+/** A WebSocket stand-in that never connects: it closes right after open. */
 class FakeSocket {
   readyState = 0;
   private listeners: Record<string, Handler[]> = {};
@@ -38,7 +38,7 @@ const until = async (pred: () => boolean, timeout = 2000) => {
   }
 };
 
-describe('SessionWsClient — reconnection exhaustion', () => {
+describe('SessionWsClient: reconnection exhaustion', () => {
   it('gives up after maxReconnectAttempts and signals exhaustion once (no hang)', async () => {
     const { factory, sockets } = failingFactory();
     const onExhausted = vi.fn();

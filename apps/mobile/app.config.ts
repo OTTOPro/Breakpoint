@@ -5,7 +5,7 @@ import type { ExpoConfig } from "expo/config";
  *
  * Bluetooth + location permissions are *declared* here (step 2.0) so the
  * native projects build with the right entitlements, but nothing is requested
- * at runtime yet — that happens once BLE (2.2) and GPS (2.3) are wired.
+ * at runtime yet: that happens once BLE (2.2) and GPS (2.3) are wired.
  */
 const config: ExpoConfig = {
   name: "BreakPoint",
@@ -17,7 +17,7 @@ const config: ExpoConfig = {
   userInterfaceStyle: "automatic",
   ios: {
     bundleIdentifier: "com.breakpoint.app",
-    // 1024×1024 PNG, flattened (NO alpha) — App Store requirement.
+    // 1024×1024 PNG, flattened (NO alpha): App Store requirement.
     icon: "./assets/images/icon.png",
     supportsTablet: false,
     infoPlist: {

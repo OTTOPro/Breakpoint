@@ -10,7 +10,7 @@ import { Fonts, Palette, Radius } from '../ui/tokens';
 
 const APP_VERSION = '1.0.0';
 
-/** Profile — edit your display name (your session label), permissions, about. */
+/** Profile: edit your display name (your session label), permissions, about. */
 export function ProfileScreen({
   onTab,
   onDiagnostics,

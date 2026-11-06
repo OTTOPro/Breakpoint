@@ -8,7 +8,7 @@ afterEach(cleanup);
 const type = (r: ReturnType<typeof render>, value: string) =>
   fireEvent.change(r.getByTestId('join-input'), { target: { value } });
 
-describe('JoinScreen — code validation & states', () => {
+describe('JoinScreen: code validation & states', () => {
   it('disables Join and shows feedback for an invalid code', () => {
     const onJoin = vi.fn();
     const r = render(<JoinScreen onJoin={onJoin} />);

@@ -7,7 +7,7 @@ import { HistoryRow } from '../ui/HistoryRow';
 import { Navbar, type TabKey } from '../ui/Navbar';
 import { Fonts, Palette } from '../ui/tokens';
 
-/** History — local list of finished meetups, newest-first, with rich details. */
+/** History: local list of finished meetups, newest-first, with rich details. */
 export function HistoryScreen({ onTab }: { onTab?: (tab: TabKey) => void }) {
   const entries = useHistoryStore((s) => s.entries);
   const hydrate = useHistoryStore((s) => s.hydrate);

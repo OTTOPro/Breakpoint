@@ -6,7 +6,7 @@ import { Fonts, Palette } from '../ui/tokens';
 
 const APP_MARK = require('../../assets/images/icon.png');
 
-/** Onboarding intro — monochrome, calm. The first splash of color is Finding. */
+/** Onboarding intro: monochrome, calm. The first splash of color is Finding. */
 export function OnboardingScreen({ onStart }: { onStart?: () => void }) {
   return (
     <SafeAreaView testID="screen-onboarding" style={styles.root}>

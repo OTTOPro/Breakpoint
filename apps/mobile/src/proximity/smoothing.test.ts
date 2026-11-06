@@ -24,7 +24,7 @@ describe('rssiToZone', () => {
   });
 });
 
-describe('computeProximity — rising signal (peer approaching)', () => {
+describe('computeProximity: rising signal (peer approaching)', () => {
   const rising = samples([-90, -88, -85, -82, -78, -74, -70, -66, -62, -58, -54, -50, -46]);
 
   it('tightens the zone and reports trend = warming', () => {
@@ -40,7 +40,7 @@ describe('computeProximity — rising signal (peer approaching)', () => {
   });
 });
 
-describe('computeProximity — falling signal (peer leaving)', () => {
+describe('computeProximity: falling signal (peer leaving)', () => {
   const falling = samples([-46, -50, -54, -58, -62, -66, -70, -74, -78, -82, -85, -88, -90]);
 
   it('widens the zone and reports trend = cooling', () => {
@@ -54,7 +54,7 @@ describe('computeProximity — falling signal (peer leaving)', () => {
   });
 });
 
-describe('computeProximity — single outlier absorbed by smoothing', () => {
+describe('computeProximity: single outlier absorbed by smoothing', () => {
   // Steady ~-72 ('close'), with one bogus strong spike to -45 ('social') mid-stream.
   const steady = [-72, -72, -71, -73, -72, -72, -72, -71, -72, -73, -72, -72];
   const withOutlier = [...steady];
@@ -77,7 +77,7 @@ describe('computeProximity — single outlier absorbed by smoothing', () => {
   });
 });
 
-describe('computeProximity — edge cases', () => {
+describe('computeProximity: edge cases', () => {
   it('returns far/steady with no samples', () => {
     const r = computeProximity([]);
     expect(r.zone).toBe('far');

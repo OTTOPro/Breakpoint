@@ -14,7 +14,7 @@ interface ContactsState {
   hydrated: boolean;
   hydrate: () => Promise<void>;
   add: (label: string) => Promise<void>;
-  /** Test/seed helper — set contacts without persisting. */
+  /** Test/seed helper: set contacts without persisting. */
   seed: (contacts: Contact[]) => void;
 }
 

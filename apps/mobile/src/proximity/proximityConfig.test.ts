@@ -33,7 +33,7 @@ describe('proximityConfig: defaults', () => {
   });
 });
 
-describe('proximityConfig — propagates to the pipeline output', () => {
+describe('proximityConfig: propagates to the pipeline output', () => {
   it('a zone-threshold change flips the zone for the SAME signal (computeProximity)', () => {
     const before = snap(-66); // default very_close = -65 → -66 reads as "close"
     expect(before.zone).toBe('close');

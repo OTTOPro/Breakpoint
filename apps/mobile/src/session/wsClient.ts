@@ -35,7 +35,7 @@ export interface WsClientOptions {
  * WebSocket client to the Session DO. Sends gps/tier/leave/met, dispatches
  * validated server messages, and reconnects automatically. On reconnect the DO
  * re-delivers the `session` frame (bleUuid + state), so callers just re-handle
- * it — no special-casing here.
+ * it: no special-casing here.
  */
 export class SessionWsClient {
   private ws: WebSocket | null = null;
@@ -100,7 +100,7 @@ export class SessionWsClient {
         return;
       }
       if (this.reconnectAttempt >= this.opts.maxReconnectAttempts) {
-        // Reconnections exhausted — give up with a clear "lost" signal.
+        // Reconnections exhausted: give up with a clear "lost" signal.
         this.opts.onClose?.({ willReconnect: false });
         this.opts.onExhausted?.();
         return;

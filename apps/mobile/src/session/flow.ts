@@ -7,7 +7,7 @@ import { parseJoinUrl } from './joinLink';
 import { useSessionStore } from './store';
 
 /**
- * Session flow helpers — thin glue between the UI and the 2.3 engine. They own
+ * Session flow helpers: thin glue between the UI and the 2.3 engine. They own
  * the loading phase + error state so screens can show a spinner / error+retry
  * and never hang. Network is best-effort; failures surface as a clear error.
  */

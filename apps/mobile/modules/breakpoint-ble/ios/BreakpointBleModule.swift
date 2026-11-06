@@ -2,11 +2,11 @@ import ExpoModulesCore
 import CoreBluetooth
 
 /**
- * BreakpointBle — iOS proximity via CoreBluetooth.
+ * BreakpointBle: iOS proximity via CoreBluetooth.
  *
  * Connectionless: the phone BOTH advertises the session UUID as a service and
  * scans for that same service UUID. With two participants the only match is the
- * other phone. The native layer stays dumb — it emits raw `{ rssi, at }` and
+ * other phone. The native layer stays dumb: it emits raw `{ rssi, at }` and
  * does no zone/trend logic (that lives in JS).
  */
 public class BreakpointBleModule: Module {
@@ -88,7 +88,7 @@ final class ProximityManager: NSObject, CBCentralManagerDelegate, CBPeripheralMa
           let peripheral = peripheral,
           peripheral.state == .poweredOn,
           let uuid = serviceUuid else { return }
-    // Service UUID only — iOS forbids custom service/manufacturer payloads.
+    // Service UUID only: iOS forbids custom service/manufacturer payloads.
     peripheral.startAdvertising([
       CBAdvertisementDataServiceUUIDsKey: [uuid]
     ])

@@ -11,7 +11,7 @@ const ORIGIN = 'https://breakpoint.app';
 const SID = '8ef60038-6984-4a27-bae5-6e260c6a46c7';
 const CAP = 'Lf34XivU9JStrmBBzOBypSPNVkywZf30l2IM_JzYB78';
 
-describe('joinLink — capability lives ONLY in the fragment', () => {
+describe('joinLink: capability lives ONLY in the fragment', () => {
   const url = buildJoinUrl(ORIGIN, SID, CAP);
 
   it('puts the capability in the fragment, never the query or path', () => {

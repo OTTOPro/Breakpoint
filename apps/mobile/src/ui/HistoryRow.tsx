@@ -17,7 +17,7 @@ export const OUTCOME_BADGE: Record<
 
 /**
  * One rich history row (name · relative time · duration · outcome badge).
- * Shared by the History screen and the Home recents preview — single source of
+ * Shared by the History screen and the Home recents preview, single source of
  * truth for how a meetup renders. Pass `onPress` to make it tappable.
  */
 export function HistoryRow({

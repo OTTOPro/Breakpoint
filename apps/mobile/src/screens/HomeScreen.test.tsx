@@ -14,7 +14,7 @@ beforeEach(async () => {
   useHistoryStore.setState({ entries: [], hydrated: false });
 });
 
-describe('HomeScreen — dynamic greeting', () => {
+describe('HomeScreen: dynamic greeting', () => {
   it('greets with the profile name', async () => {
     await AsyncStorage.setItem('bp.profile.name', JSON.stringify('Othmane'));
     const r = render(<HomeScreen />);
@@ -30,7 +30,7 @@ describe('HomeScreen — dynamic greeting', () => {
   });
 });
 
-describe('HomeScreen — recents preview', () => {
+describe('HomeScreen: recents preview', () => {
   const base = 1_700_000_000_000;
   const seeded: HistoryEntry[] = [
     { id: 'r1', peerLabel: 'Alex', outcome: 'met', endedAt: base + 1, durationMs: 12 * 60_000 },
@@ -61,7 +61,7 @@ describe('HomeScreen — recents preview', () => {
   });
 });
 
-describe('HomeScreen — actions route', () => {
+describe('HomeScreen: actions route', () => {
   it('Find / Join / recents trigger their handlers', async () => {
     await AsyncStorage.setItem(
       'bp.history',
@@ -83,7 +83,7 @@ describe('HomeScreen — actions route', () => {
   });
 });
 
-describe('HomeScreen — loading & error states (2.7)', () => {
+describe('HomeScreen: loading & error states (2.7)', () => {
   it('shows a loading state and blocks double-submit while pending', () => {
     const onFind = vi.fn();
     const r = render(<HomeScreen onFind={onFind} pending />);
@@ -102,7 +102,7 @@ describe('HomeScreen — loading & error states (2.7)', () => {
   });
 });
 
-describe('HomeScreen — accessibility', () => {
+describe('HomeScreen: accessibility', () => {
   it('labels the primary actions for screen readers', () => {
     const r = render(<HomeScreen />);
     expect(r.getByTestId('home-find').getAttribute('aria-label')).toMatch(/Find someone/);

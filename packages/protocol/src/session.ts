@@ -31,7 +31,7 @@ export const SessionState = {
 
 /**
  * Proximity tier. Drives the UI colour/guidance. Computed on-device from
- * sensors (GPS → BLE → social) — never by the server.
+ * sensors (GPS → BLE → social), never by the server.
  */
 export type Tier = "far" | "close" | "very_close" | "social";
 

@@ -8,7 +8,7 @@ import { Fonts, Palette, Radius } from '../ui/tokens';
 const CODE_LENGTH = 6;
 const VALID_CODE = /^[A-Z2-9]{6}$/; // unambiguous alphabet, 6 chars
 
-/** Join — enter a code (or scan). Navigation/join handled by the route. */
+/** Join: enter a code (or scan). Navigation/join handled by the route. */
 export function JoinScreen({
   onClose,
   onJoin,

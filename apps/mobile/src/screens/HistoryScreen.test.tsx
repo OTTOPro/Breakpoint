@@ -27,7 +27,7 @@ describe('HistoryScreen', () => {
   it('renders rich rows (name, duration, outcome badge), newest-first', async () => {
     const base = 1_700_000_000_000;
     await seed([
-      // older first on purpose — the screen must sort newest-first
+      // older first on purpose: the screen must sort newest-first
       { id: 'old', peerLabel: 'Alex', outcome: 'met', startedAt: base, endedAt: base + 12 * 60_000, durationMs: 12 * 60_000 },
       { id: 'new', peerLabel: 'Jordan', outcome: 'expired', startedAt: base, endedAt: base + 100 * 60_000, durationMs: 3 * 60_000 },
     ]);

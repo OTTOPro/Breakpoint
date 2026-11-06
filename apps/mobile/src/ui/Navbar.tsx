@@ -4,7 +4,7 @@ import { Fonts, Palette } from './tokens';
 
 export type TabKey = 'home' | 'history' | 'contacts' | 'profile';
 
-/** The bottom nav pill — shown only on Home / History / Contacts / Profile. */
+/** The bottom nav pill: shown only on Home / History / Contacts / Profile. */
 export function Navbar({
   active = 'home',
   onSelect,

@@ -29,7 +29,7 @@ const TIERS: { ramp: number[]; phrase: string }[] = [
   { ramp: repeat(-44, 8), phrase: 'here' },
 ];
 
-describe('FindingScreen — accessibility (proximity is never colour-only)', () => {
+describe('FindingScreen: accessibility (proximity is never colour-only)', () => {
   it('exposes a non-colour textual signal at every tier', () => {
     const titles = new Set<string>();
     for (const { ramp, phrase } of TIERS) {

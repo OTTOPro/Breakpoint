@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { failureCopy } from './FailureScreen';
 
-describe('failureCopy — every failure has a clear message', () => {
+describe('failureCopy: every failure has a clear message', () => {
   it('maps abandoned / expired / cancelled', () => {
     expect(failureCopy({ state: 'abandoned', connection: 'open' }).title).toMatch(/stepped away/i);
     expect(failureCopy({ state: 'expired', connection: 'open' }).title).toMatch(/expired/i);

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../ui/PrimaryButton';
 import { Fonts, Palette } from '../ui/tokens';
 
-/** Confirm / done — session closed, nothing still sharing. */
+/** Confirm / done: session closed, nothing still sharing. */
 export function DoneScreen({ onDone }: { onDone?: () => void }) {
   return (
     <SafeAreaView testID="screen-done" style={styles.root}>

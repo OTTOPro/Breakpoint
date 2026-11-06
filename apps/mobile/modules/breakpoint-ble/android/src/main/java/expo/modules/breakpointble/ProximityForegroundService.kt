@@ -25,7 +25,7 @@ import androidx.core.app.NotificationCompat
 /**
  * Foreground service that runs connectionless BLE: advertises the session UUID
  * and scans for that same UUID. Each peer detection is forwarded raw (rssi +
- * epoch millis) through [signalListener]. No zone/trend logic here — that's JS.
+ * epoch millis) through [signalListener]. No zone/trend logic here: that's JS.
  */
 @SuppressLint("MissingPermission") // runtime perms requested in JS before start
 class ProximityForegroundService : Service() {

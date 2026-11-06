@@ -33,7 +33,7 @@ beforeEach(() => {
 });
 afterEach(() => vi.clearAllMocks());
 
-describe('startAsInitiator — failure paths never hang', () => {
+describe('startAsInitiator: failure paths never hang', () => {
   it('backend unreachable on create → error + retry, phase back to idle', async () => {
     vi.mocked(createSession).mockRejectedValue(networkError());
     const ok = await startAsInitiator();
@@ -61,7 +61,7 @@ describe('startAsInitiator — failure paths never hang', () => {
   });
 });
 
-describe('startAsJoiner — maps backend errors to clear messages', () => {
+describe('startAsJoiner: maps backend errors to clear messages', () => {
   it.each([
     [403, 'invalid_code'],
     [404, 'not_found'],

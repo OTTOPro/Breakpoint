@@ -9,7 +9,7 @@ import type { RadioIssue } from '../session/store';
  *
  * Setup screens stay calm and near-monochrome; the saturated accent is
  * reserved for Finding, where it tracks proximity continuously (cold→warm) and
- * cools back down on a wrong turn. No device needed — fully unit-testable.
+ * cools back down on a wrong turn. No device needed, fully unit-testable.
  */
 
 /** Calm, barely-cool setup background (kept quieter than Finding). */
@@ -17,7 +17,7 @@ export const SETUP_BG = '#E6EDF6';
 /** Neutral surface used behind setup content blocks. */
 export const SETUP_SURFACE = '#F5F6F7';
 
-/** RSSI window mapped onto the 0–100 proximity scale used by the gradient. */
+/** RSSI window mapped onto the 0 to 100 proximity scale used by the gradient. */
 const RSSI_FLOOR = -90;
 const RSSI_CEIL = -45;
 

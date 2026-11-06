@@ -17,7 +17,7 @@ beforeEach(async () => {
   useProfileStore.setState({ name: '', hydrated: false });
 });
 
-describe('ProfileScreen — display name persistence', () => {
+describe('ProfileScreen: display name persistence', () => {
   it('edits the name, persists it, and re-reads it after a remount', async () => {
     const r = render(<ProfileScreen />);
     const input = r.getByTestId('profile-name-input') as HTMLInputElement;

@@ -48,7 +48,7 @@ export interface SessionStoreState {
   /** Local display label (from Profile) used for this session. */
   myLabel?: string;
 
-  /** From createSession — shown on the Invite screen. Never the bleUuid. */
+  /** From createSession: shown on the Invite screen. Never the bleUuid. */
   joinCode?: string;
   joinUrl?: string;
 

@@ -22,7 +22,7 @@ export function stopProximity(): void {
 }
 
 /**
- * Subscribe to raw peer RSSI samples. Returns a subscription — call
+ * Subscribe to raw peer RSSI samples. Returns a subscription: call
  * `.remove()` to stop listening.
  */
 export function onPeerSignal(

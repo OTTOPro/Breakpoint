@@ -1,5 +1,5 @@
 /**
- * Pure geo helpers — no expo-location, no React Native. Unit-testable.
+ * Pure geo helpers: no expo-location, no React Native. Unit-testable.
  *
  * Coordinates are decimal degrees. Distances in meters, bearings in degrees
  * (0 = north, clockwise).

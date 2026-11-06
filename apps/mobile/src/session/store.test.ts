@@ -8,7 +8,7 @@ beforeEach(() => {
   useSessionStore.getState().reset();
 });
 
-describe('session store — server message handling', () => {
+describe('session store: server message handling', () => {
   it("'session' delivers bleUuid + state + peerPresent and opens the connection", () => {
     useSessionStore
       .getState()

@@ -2,7 +2,7 @@
   "name": "@breakpoint/protocol",
   "version": "0.0.0",
   "private": true,
-  "description": "BreakPoint shared protocol — TypeScript + Zod (single source of truth)",
+  "description": "BreakPoint shared protocol: TypeScript + Zod (single source of truth)",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

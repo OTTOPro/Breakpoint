@@ -5,7 +5,7 @@ import { GhostButton, PrimaryButton } from '../ui/PrimaryButton';
 import { Fonts, Palette } from '../ui/tokens';
 
 /**
- * Permission denied — explains WHY proximity needs Bluetooth/location and how
+ * Permission denied: explains WHY proximity needs Bluetooth/location and how
  * to fix it. Finding needs BLE: rather than failing silently, say so and offer
  * the settings shortcut.
  */
@@ -18,7 +18,7 @@ export function PermissionDeniedScreen({
 }) {
   const openSettings = () => {
     void Linking.openSettings?.().catch(() => {
-      // settings deep link unavailable (e.g. web) — best effort
+      // settings deep link unavailable (e.g. web), best effort
     });
   };
 

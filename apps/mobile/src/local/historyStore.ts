@@ -5,7 +5,7 @@ import { getJSON, setJSON } from './storage';
 
 const KEY = 'bp.history';
 
-/** How a meetup ended — derived from the DO's real terminal state. */
+/** How a meetup ended: derived from the DO's real terminal state. */
 export type HistoryOutcome = 'met' | 'abandoned' | 'expired' | 'lost';
 
 /**
@@ -24,7 +24,7 @@ export interface HistoryEntry {
   at?: number;
 }
 
-/** Entry with every field resolved (fallbacks applied) — safe for the UI. */
+/** Entry with every field resolved (fallbacks applied), safe for the UI. */
 export interface NormalizedEntry {
   id: string;
   peerLabel: string;
@@ -95,7 +95,7 @@ interface HistoryState {
   hydrated: boolean;
   hydrate: () => Promise<void>;
   add: (entry: HistoryEntry) => Promise<void>;
-  /** Test/seed helper — set entries without persisting. */
+  /** Test/seed helper: set entries without persisting. */
   seed: (entries: HistoryEntry[]) => void;
   clear: () => Promise<void>;
 }
@@ -126,7 +126,7 @@ export const useHistoryStore = create<HistoryState>((set, get) => ({
 /**
  * The engine's terminal hook: write ONE rich history entry when a session
  * reaches a terminal state. Called for every terminal path (met/abandoned/
- * expired/lost) — see SessionEngine.
+ * expired/lost), see SessionEngine.
  */
 export async function recordTerminal(input: {
   outcome: HistoryOutcome;

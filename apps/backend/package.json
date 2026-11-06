@@ -2,7 +2,7 @@
   "name": "@breakpoint/backend",
   "version": "0.0.0",
   "private": true,
-  "description": "BreakPoint backend — Cloudflare Worker + Durable Object (Hono)",
+  "description": "BreakPoint backend: Cloudflare Worker + Durable Object (Hono)",
   "type": "module",
   "main": "src/index.ts",
   "scripts": {

@@ -22,7 +22,7 @@ app.get("/health", (c) => c.json({ ok: true }));
  * Create a session.
  * Body may ask for shorter timings: { joinTtlMs?, maxLifetimeMs?, graceMs? }.
  * The Durable Object caps them (see limits.ts); a client cannot extend a session.
- * Returns { sessionId, joinCode, joinUrl, participantToken } — never the bleUuid.
+ * Returns { sessionId, joinCode, joinUrl, participantToken }, never the bleUuid.
  */
 app.post("/sessions", async (c) => {
   const sessionId = crypto.randomUUID();
@@ -43,7 +43,7 @@ app.post("/sessions", async (c) => {
 
 /**
  * Join a session. Body: { joinCapability } or { joinCode }.
- * Returns { sessionId, participantToken } — never the bleUuid.
+ * Returns { sessionId, participantToken }, never the bleUuid.
  */
 app.post("/sessions/:id/join", async (c) => {
   const sessionId = c.req.param("id");
@@ -60,7 +60,7 @@ app.post("/sessions/:id/join", async (c) => {
   });
 });
 
-/** Public session status (no secrets, no bleUuid) — handy for tests/clients. */
+/** Public session status (no secrets, no bleUuid), handy for tests/clients. */
 app.get("/sessions/:id", async (c) => {
   const sessionId = c.req.param("id");
   const stub = stubFor(c.env, sessionId);

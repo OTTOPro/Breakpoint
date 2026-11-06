@@ -28,7 +28,7 @@ export function toPolylinePoints(
 }
 
 /**
- * Tiny hand-rolled sparkline — raw (light) + smoothed (dark) overlaid. A plain
+ * Tiny hand-rolled sparkline: raw (light) + smoothed (dark) overlaid. A plain
  * SVG; no charting library.
  */
 export function Sparkline({

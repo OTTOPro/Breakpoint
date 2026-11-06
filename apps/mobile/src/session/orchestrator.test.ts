@@ -15,7 +15,7 @@ function recent(now: number, count: number, stepMs = 200): RssiSample[] {
   return out;
 }
 
-describe('TierOrchestrator — BLE lock gating', () => {
+describe('TierOrchestrator: BLE lock gating', () => {
   it('stays far with no BLE samples, even if a zone is supplied', () => {
     const o = new TierOrchestrator();
     expect(o.update({ now: 1000, samples: [], zone: 'social' })).toBe('far');
@@ -43,7 +43,7 @@ describe('TierOrchestrator — BLE lock gating', () => {
   });
 });
 
-describe('TierOrchestrator — tier progression', () => {
+describe('TierOrchestrator: tier progression', () => {
   it('climbs far → close → very_close → social as the zone tightens', () => {
     const seen: Tier[] = [];
     const o = new TierOrchestrator({}, (t) => seen.push(t));
@@ -63,7 +63,7 @@ describe('TierOrchestrator — tier progression', () => {
   });
 });
 
-describe('TierOrchestrator — hysteresis (no flap on a brief drop)', () => {
+describe('TierOrchestrator: hysteresis (no flap on a brief drop)', () => {
   const cfg = { lockSamples: 3, lockWindowMs: 2_000, graceMs: 4_000 };
 
   it('keeps the BLE lock through a short signal gap', () => {

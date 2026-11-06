@@ -13,7 +13,7 @@ export * from "./session";
 export * from "./messages";
 export * from "./ble";
 
-/** Library version marker — handy for debugging wire mismatches later. */
+/** Library version marker: handy for debugging wire mismatches later. */
 export const PROTOCOL_VERSION = "0.0.0" as const;
 
 /** Re-export zod so consumers can build on the exact same instance. */

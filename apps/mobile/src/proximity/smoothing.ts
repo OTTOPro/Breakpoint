@@ -1,7 +1,7 @@
 import type { Tier } from '@breakpoint/protocol';
 
 /**
- * Proximity smoothing — PURE, device-free, unit-testable.
+ * Proximity smoothing: PURE, device-free, unit-testable.
  *
  * The native BLE layer emits raw `{ rssi, at }` samples. Everything that turns
  * that noisy stream into a stable zone + trend lives here in JS so it can be
@@ -29,7 +29,7 @@ export type ProximityReading = {
   rssiSmoothed: number;
 };
 
-/** RSSI boundaries (dBm) for each zone — strongest zone first. */
+/** RSSI boundaries (dBm) for each zone, strongest zone first. */
 export type ZoneThresholds = {
   social: number;
   very_close: number;

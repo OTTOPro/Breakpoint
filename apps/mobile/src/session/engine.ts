@@ -33,7 +33,7 @@ export interface StartSessionParams {
  * smoothing/orchestrator pipeline, GPS, and the Zustand store.
  *
  * BLE proximity starts only when the WS `session` frame delivers the bleUuid
- * (the sole source) — and exactly once, even across reconnects.
+ * (the sole source), and exactly once, even across reconnects.
  */
 export class SessionEngine {
   private ws: SessionWsClient | null = null;

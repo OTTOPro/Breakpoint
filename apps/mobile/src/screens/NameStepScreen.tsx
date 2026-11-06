@@ -7,7 +7,7 @@ import { PrimaryButton } from '../ui/PrimaryButton';
 import { Fonts, Palette, Radius } from '../ui/tokens';
 
 /**
- * Onboarding "name" step — captures the display name into the SAME
+ * Onboarding "name" step: captures the display name into the SAME
  * `profileStore` field that `getSessionLabel()` reads (and Profile edits).
  */
 export function NameStepScreen({ onDone }: { onDone?: () => void }) {

@@ -9,8 +9,8 @@ export type BootTarget = 'home' | 'onboarding';
 /**
  * Boot gate. Hydrates the local stores, then decides where to go:
  * onboarding (first launch) vs home (returning). It ALWAYS renders the splash
- * and never the onboarding itself — navigation moves away once hydration
- * finishes — so a returning user never sees an onboarding flash.
+ * and never the onboarding itself, navigation moves away once hydration
+ * finishes, so a returning user never sees an onboarding flash.
  */
 export function BootGate({ onRoute }: { onRoute?: (target: BootTarget) => void }) {
   const hydrated = useProfileStore((s) => s.hydrated);

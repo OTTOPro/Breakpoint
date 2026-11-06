@@ -2,7 +2,7 @@ import * as Location from 'expo-location';
 import { PermissionsAndroid, Platform } from 'react-native';
 
 /**
- * Request the permissions BLE proximity needs, at the right moment — call this
+ * Request the permissions BLE proximity needs, at the right moment: call this
  * right before {@link startProximity}, never at app launch.
  *
  * - Android 12+: BLUETOOTH_SCAN + BLUETOOTH_ADVERTISE (scan declared

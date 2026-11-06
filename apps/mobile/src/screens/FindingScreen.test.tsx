@@ -41,7 +41,7 @@ function accentOf(): string {
   return render(<FindingScreen />).getByTestId('finding-accent').textContent ?? '';
 }
 
-describe('FindingScreen — state-driven render per tier', () => {
+describe('FindingScreen: state-driven render per tier', () => {
   it('far → arrow, no radar, no social ("Follow the arrow")', () => {
     drive([-86]); // one weak sample: no BLE lock → far
     const r = render(<FindingScreen />);
@@ -80,7 +80,7 @@ describe('FindingScreen — state-driven render per tier', () => {
   });
 });
 
-describe('FindingScreen — accent tracks proximity (continuous, both directions)', () => {
+describe('FindingScreen: accent tracks proximity (continuous, both directions)', () => {
   it('warms from blue (far) to pink (social)', () => {
     drive([-86]);
     const far = parseRgb(accentOf());
@@ -122,7 +122,7 @@ describe('FindingScreen — accent tracks proximity (continuous, both directions
   });
 });
 
-describe('throughline — setup stays calmer than Finding', () => {
+describe('throughline: setup stays calmer than Finding', () => {
   function saturationRange(rgb: [number, number, number]): number {
     return Math.max(...rgb) - Math.min(...rgb);
   }

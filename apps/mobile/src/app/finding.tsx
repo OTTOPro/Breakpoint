@@ -17,7 +17,7 @@ export default function FindingRoute() {
     } else if (state === 'ended') {
       router.replace('/done');
     } else if (connection === 'closed') {
-      // WS reconnections exhausted — surface the lost-connection screen.
+      // WS reconnections exhausted: surface the lost-connection screen.
       router.replace('/failure');
     }
   }, [state, connection, router]);

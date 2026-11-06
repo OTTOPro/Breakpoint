@@ -7,8 +7,8 @@ import { Navbar, type TabKey } from '../ui/Navbar';
 import { Fonts, Palette, Radius } from '../ui/tokens';
 
 /**
- * Contacts — a local list of saved peer labels (matches Home's "Recents").
- * Stub only: there is NO peer addressing — tapping just pre-fills a label in a
+ * Contacts: a local list of saved peer labels (matches Home's "Recents").
+ * Stub only: there is NO peer addressing, tapping just pre-fills a label in a
  * new session (cosmetic). Direct re-invite is a V2 feature.
  */
 export function ContactsScreen({
