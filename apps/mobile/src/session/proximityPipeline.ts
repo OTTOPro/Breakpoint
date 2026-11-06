@@ -2,6 +2,7 @@ import type { Tier } from '@breakpoint/protocol';
 
 import { getProximityConfig } from '../proximity/proximityConfig';
 import {
+  NO_SIGNAL_RSSI,
   computeProximity,
   type ProximityOptions,
   type ProximityReading,
@@ -64,6 +65,23 @@ export class ProximityPipeline {
 
   /** Feed one raw sample; returns the latest snapshot. */
   push(sample: RssiSample, distanceM?: number): PipelineSnapshot {
+    this.samples.push(sample);
+    return this.evaluate(sample.at, sample.rssi, distanceM);
+  }
+
+  /**
+   * Re-evaluate without a new sample. The radio only reports when it hears the
+   * peer, so silence produces no events at all: without a clock, the last
+   * reading would stay on screen forever and the lock would never time out.
+   * The engine calls this on a timer so old samples age out of the window and
+   * the orchestrator can drop the lock after its grace period.
+   */
+  tick(now: number, distanceM?: number): PipelineSnapshot {
+    const last = this.samples[this.samples.length - 1];
+    return this.evaluate(now, last?.rssi ?? NO_SIGNAL_RSSI, distanceM);
+  }
+
+  private evaluate(now: number, raw: number, distanceM?: number): PipelineSnapshot {
     const cfg = getProximityConfig();
 
     const windowMs = this.explicitWindowMs ?? cfg.windowMs;
@@ -84,13 +102,12 @@ export class ProximityPipeline {
       });
     }
 
-    this.samples.push(sample);
-    const cutoff = sample.at - windowMs;
+    const cutoff = now - windowMs;
     this.samples = this.samples.filter((s) => s.at >= cutoff);
 
     const reading = computeProximity(this.samples, smoothing);
     const tier = this.orchestrator.update({
-      now: sample.at,
+      now,
       samples: this.samples,
       zone: reading.zone,
       distanceM,
@@ -98,13 +115,13 @@ export class ProximityPipeline {
 
     const lockWindowMs = this.explicitOrchestrator?.lockWindowMs ?? cfg.lockWindowMs;
     const lockCount = this.samples.filter(
-      (s) => s.at >= sample.at - lockWindowMs,
+      (s) => s.at >= now - lockWindowMs,
     ).length;
 
     return {
       reading,
       tier,
-      raw: sample.rssi,
+      raw,
       rssiSmoothed: reading.rssiSmoothed,
       zone: reading.zone,
       trend: reading.trend,
