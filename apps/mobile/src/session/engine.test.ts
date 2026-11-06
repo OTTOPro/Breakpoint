@@ -2,11 +2,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ServerMessage } from '@breakpoint/protocol';
 
-import { startProximity, stopProximity } from '../../modules/breakpoint-ble';
+import {
+  onProximityError,
+  startProximity,
+  stopProximity,
+  type ProximityErrorEvent,
+} from '../../modules/breakpoint-ble';
 import { watchGps } from '../location/gps';
 import { requestProximityPermissions } from '../proximity/permissions';
 
-import { SessionEngine } from './engine';
+import { SessionEngine, radioIssueFor } from './engine';
 import { useSessionStore } from './store';
 
 // Captures the onMessage handler the engine hands to the WS client, so a test
@@ -31,6 +36,7 @@ vi.mock('../../modules/breakpoint-ble', () => ({
   startProximity: vi.fn(),
   stopProximity: vi.fn(),
   onPeerSignal: vi.fn(() => ({ remove: vi.fn() })),
+  onProximityError: vi.fn(() => ({ remove: vi.fn() })),
 }));
 vi.mock('../proximity/permissions', () => ({
   requestProximityPermissions: vi.fn(),
@@ -113,5 +119,30 @@ describe('SessionEngine: Bluetooth waits for permission', () => {
     expect(startProximity).not.toHaveBeenCalled();
     expect(watchGps).not.toHaveBeenCalled();
     expect(stopProximity).toHaveBeenCalled();
+  });
+});
+
+describe('SessionEngine: native failures reach the screen', () => {
+  it('turns a Bluetooth-off event into a visible radio issue', async () => {
+    const answer = pendingPermission();
+    const engine = new SessionEngine();
+    void engine.start({ sessionId: 's1', participantToken: 't', role: 'initiator' });
+    ws.onMessage!(SESSION_FRAME);
+    answer(true);
+    await flush();
+
+    const listener = vi.mocked(onProximityError).mock.calls[0]![0] as (
+      e: ProximityErrorEvent,
+    ) => void;
+    listener({ code: 'bluetooth_off' });
+    expect(useSessionStore.getState().radioIssue).toBe('bluetooth_off');
+    engine.stop();
+  });
+
+  it('maps every native code to a screen state', () => {
+    expect(radioIssueFor('unauthorized')).toBe('permission_denied');
+    expect(radioIssueFor('unsupported')).toBe('unsupported');
+    expect(radioIssueFor('advertise_failed')).toBe('failed');
+    expect(radioIssueFor('scan_failed')).toBe('failed');
   });
 });

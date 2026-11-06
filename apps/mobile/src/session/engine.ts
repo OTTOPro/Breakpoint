@@ -9,16 +9,18 @@ import {
 
 import {
   onPeerSignal,
+  onProximityError,
   startProximity,
   stopProximity,
   type PeerSignalEvent,
+  type ProximityErrorCode,
 } from '../../modules/breakpoint-ble';
 import { watchGps, type GpsWatchHandle } from '../location/gps';
 import { requestProximityPermissions } from '../proximity/permissions';
 
 import { ProximityPipeline } from './proximityPipeline';
 import { SessionWsClient } from './wsClient';
-import { useSessionStore, type ParticipantRole } from './store';
+import { useSessionStore, type ParticipantRole, type RadioIssue } from './store';
 
 export interface StartSessionParams {
   sessionId: string;
@@ -37,6 +39,7 @@ export class SessionEngine {
   private ws: SessionWsClient | null = null;
   private pipeline: ProximityPipeline | null = null;
   private peerSub: { remove: () => void } | null = null;
+  private errorSub: { remove: () => void } | null = null;
   private gpsWatch: GpsWatchHandle | null = null;
   private proximityStarted = false;
   private tickTimer: ReturnType<typeof setInterval> | null = null;
@@ -142,6 +145,9 @@ export class SessionEngine {
       return;
     }
     this.peerSub = onPeerSignal((e: PeerSignalEvent) => this.onSignal(e));
+    this.errorSub = onProximityError((e) =>
+      useSessionStore.getState().setRadioIssue(radioIssueFor(e.code)),
+    );
     startProximity(bleUuid);
     this.tickTimer = setInterval(() => this.onTick(Date.now()), TICK_MS);
   }
@@ -187,12 +193,28 @@ export class SessionEngine {
     this.gpsWatch = null;
     this.peerSub?.remove();
     this.peerSub = null;
+    this.errorSub?.remove();
+    this.errorSub = null;
     if (this.tickTimer) clearInterval(this.tickTimer);
     this.tickTimer = null;
     stopProximity();
     this.ws?.close();
     this.ws = null;
     this.proximityStarted = false;
+  }
+}
+
+/** Map a native failure to what the Finding screen tells the user. */
+export function radioIssueFor(code: ProximityErrorCode): RadioIssue {
+  switch (code) {
+    case 'bluetooth_off':
+      return 'bluetooth_off';
+    case 'unauthorized':
+      return 'permission_denied';
+    case 'unsupported':
+      return 'unsupported';
+    default:
+      return 'failed';
   }
 }
 

@@ -15,7 +15,7 @@ public class BreakpointBleModule: Module {
   public func definition() -> ModuleDefinition {
     Name("BreakpointBle")
 
-    Events("onPeerSignal")
+    Events("onPeerSignal", "onProximityError")
 
     Function("hello") { () -> String in
       "hello from breakpoint-ble (iOS)"
@@ -27,6 +27,9 @@ public class BreakpointBleModule: Module {
           "rssi": rssi,
           "at": at,
         ])
+      }
+      self.proximity.onError = { [weak self] code in
+        self?.sendEvent("onProximityError", ["code": code])
       }
       self.proximity.start(sessionUuid: sessionUuid)
     }
@@ -45,6 +48,8 @@ public class BreakpointBleModule: Module {
 final class ProximityManager: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegate {
   /// (rssi, epochMillis)
   var onSignal: ((Int, Double) -> Void)?
+  /// One of the `ProximityErrorCode` strings shared with JS.
+  var onError: ((String) -> Void)?
 
   private var central: CBCentralManager?
   private var peripheral: CBPeripheralManager?
@@ -99,8 +104,14 @@ final class ProximityManager: NSObject, CBCentralManagerDelegate, CBPeripheralMa
     switch central.state {
     case .poweredOn:
       startScanIfReady()
+    case .poweredOff:
+      if running { onError?("bluetooth_off") }
+    case .unauthorized:
+      if running { onError?("unauthorized") }
+    case .unsupported:
+      if running { onError?("unsupported") }
     default:
-      break // poweredOff / unauthorized / unsupported — nothing to scan
+      break // resetting or unknown: another state update follows
     }
   }
 
@@ -121,7 +132,14 @@ final class ProximityManager: NSObject, CBCentralManagerDelegate, CBPeripheralMa
     case .poweredOn:
       startAdvertiseIfReady()
     default:
-      break
+      break // the central delegate already reports off or unauthorized
     }
+  }
+
+  func peripheralManagerDidStartAdvertising(
+    _ peripheral: CBPeripheralManager,
+    error: Error?
+  ) {
+    if error != nil && running { onError?("advertise_failed") }
   }
 }

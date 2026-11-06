@@ -35,7 +35,8 @@ class ProximityForegroundService : Service() {
 
   private val advertiseCallback = object : AdvertiseCallback() {
     override fun onStartFailure(errorCode: Int) {
-      // Advertising failed (e.g. unsupported chipset) — scanning may still work.
+      // Scanning may still work, but the peer will not hear this phone.
+      errorListener?.invoke(ERROR_ADVERTISE_FAILED, errorCode)
     }
   }
 
@@ -48,6 +49,10 @@ class ProximityForegroundService : Service() {
     override fun onBatchScanResults(results: MutableList<ScanResult>) {
       val at = System.currentTimeMillis().toDouble()
       for (result in results) signalListener?.invoke(result.rssi, at)
+    }
+
+    override fun onScanFailed(errorCode: Int) {
+      errorListener?.invoke(ERROR_SCAN_FAILED, errorCode)
     }
   }
 
@@ -76,12 +81,34 @@ class ProximityForegroundService : Service() {
 
   private fun startProximity(sessionUuid: String) {
     val manager = getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
-    val adapter = manager?.adapter ?: return
-    if (!adapter.isEnabled) return
+    val adapter = manager?.adapter
+    if (adapter == null) {
+      errorListener?.invoke(ERROR_UNSUPPORTED, null)
+      return
+    }
+    if (!adapter.isEnabled) {
+      errorListener?.invoke(ERROR_BLUETOOTH_OFF, null)
+      return
+    }
 
+    try {
+      startRadio(adapter.bluetoothLeAdvertiser, adapter.bluetoothLeScanner, sessionUuid)
+    } catch (e: SecurityException) {
+      // Permission revoked between the JS check and this call.
+      stopProximity()
+      errorListener?.invoke(ERROR_UNAUTHORIZED, null)
+    }
+  }
+
+  private fun startRadio(
+    leAdvertiser: BluetoothLeAdvertiser?,
+    leScanner: BluetoothLeScanner?,
+    sessionUuid: String,
+  ) {
     val parcelUuid = ParcelUuid.fromString(sessionUuid)
 
-    advertiser = adapter.bluetoothLeAdvertiser
+    advertiser = leAdvertiser
+    if (leAdvertiser == null) errorListener?.invoke(ERROR_ADVERTISE_FAILED, null)
     advertiser?.startAdvertising(
       AdvertiseSettings.Builder()
         .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
@@ -95,7 +122,11 @@ class ProximityForegroundService : Service() {
       advertiseCallback,
     )
 
-    scanner = adapter.bluetoothLeScanner
+    scanner = leScanner
+    if (leScanner == null) {
+      errorListener?.invoke(ERROR_SCAN_FAILED, null)
+      return
+    }
     val filters = listOf(
       ScanFilter.Builder().setServiceUuid(parcelUuid).build(),
     )
@@ -106,8 +137,12 @@ class ProximityForegroundService : Service() {
   }
 
   private fun stopProximity() {
-    advertiser?.stopAdvertising(advertiseCallback)
-    scanner?.stopScan(scanCallback)
+    try {
+      advertiser?.stopAdvertising(advertiseCallback)
+      scanner?.stopScan(scanCallback)
+    } catch (e: SecurityException) {
+      // Permission already gone: the system has stopped the radio for us.
+    }
     advertiser = null
     scanner = null
   }
@@ -139,8 +174,18 @@ class ProximityForegroundService : Service() {
     private const val CHANNEL_ID = "breakpoint_proximity"
     private const val NOTIFICATION_ID = 4201
 
+    const val ERROR_BLUETOOTH_OFF = "bluetooth_off"
+    const val ERROR_UNAUTHORIZED = "unauthorized"
+    const val ERROR_UNSUPPORTED = "unsupported"
+    const val ERROR_ADVERTISE_FAILED = "advertise_failed"
+    const val ERROR_SCAN_FAILED = "scan_failed"
+
     /** Set by the module; receives (rssi, epochMillis) for each detection. */
     @Volatile
     var signalListener: ((Int, Double) -> Unit)? = null
+
+    /** Set by the module; receives (code, platform error code or null). */
+    @Volatile
+    var errorListener: ((String, Int?) -> Unit)? = null
   }
 }

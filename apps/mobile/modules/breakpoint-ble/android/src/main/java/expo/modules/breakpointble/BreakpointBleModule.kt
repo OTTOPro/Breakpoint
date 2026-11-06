@@ -18,7 +18,7 @@ class BreakpointBleModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("BreakpointBle")
 
-    Events("onPeerSignal")
+    Events("onPeerSignal", "onProximityError")
 
     Function("hello") {
       "hello from breakpoint-ble (Android)"
@@ -30,6 +30,12 @@ class BreakpointBleModule : Module() {
         sendEvent("onPeerSignal", Bundle().apply {
           putInt("rssi", rssi)
           putDouble("at", at)
+        })
+      }
+      ProximityForegroundService.errorListener = { code, detail ->
+        sendEvent("onProximityError", Bundle().apply {
+          putString("code", code)
+          if (detail != null) putInt("detail", detail)
         })
       }
       val intent = Intent(context, ProximityForegroundService::class.java).apply {
@@ -46,12 +52,14 @@ class BreakpointBleModule : Module() {
       }
       context.startService(intent)
       ProximityForegroundService.signalListener = null
+      ProximityForegroundService.errorListener = null
     }
 
     OnDestroy {
       val context = appContext.reactContext ?: return@OnDestroy
       context.stopService(Intent(context, ProximityForegroundService::class.java))
       ProximityForegroundService.signalListener = null
+      ProximityForegroundService.errorListener = null
     }
   }
 }
