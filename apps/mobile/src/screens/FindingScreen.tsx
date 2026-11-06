@@ -113,7 +113,7 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
         <View testID="finding-social" style={styles.socialOverlay}>
           <Text style={[styles.socialTitle, { color: v.ink }]}>You’re here.</Text>
           <Text style={[styles.socialSub, { color: v.ink }]}>
-            Look up — wave your phones. They’re right by you.
+            Look up and wave your phones. They’re right by you.
           </Text>
           <Pressable
             testID="finding-found"

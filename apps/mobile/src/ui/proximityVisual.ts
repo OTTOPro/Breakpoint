@@ -90,7 +90,7 @@ export interface FindingVisual {
 const TIER_COPY: Record<Tier, { title: string; sub: string }> = {
   far: { title: 'Follow the arrow', sub: 'they’re this way' },
   close: { title: 'Signal locked', sub: 'walk a few steps and watch the colour' },
-  very_close: { title: 'Almost on them', sub: 'you’re hot — look around' },
+  very_close: { title: 'Almost on them', sub: 'you’re hot, look around' },
   social: { title: 'You’re here', sub: 'look up' },
 };
 
@@ -118,7 +118,7 @@ export function findingVisual(input: {
   const ink = inkColor(pct);
 
   const copy = isCooling
-    ? { title: 'You’re cooling', sub: 'wrong way — turn around' }
+    ? { title: 'You’re cooling', sub: 'wrong way, turn around' }
     : isWarming
       ? { title: 'Getting warmer', sub: 'keep going this way' }
       : TIER_COPY[tier];
