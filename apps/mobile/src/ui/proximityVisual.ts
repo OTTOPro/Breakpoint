@@ -1,6 +1,7 @@
 import type { Tier } from '@breakpoint/protocol';
 
 import type { ProximityReading, Trend } from '../proximity/smoothing';
+import type { RadioIssue } from '../session/store';
 
 /**
  * Pure visual mapping for the Finding screen, faithful to the design mockups
@@ -129,4 +130,18 @@ export function findingVisual(input: {
     isCooling,
     proximityPercent: pct,
   };
+}
+
+/** Plain-language note shown on Finding when Bluetooth proximity is not running. */
+export function radioIssueText(issue: RadioIssue): string {
+  switch (issue) {
+    case 'permission_denied':
+      return 'Bluetooth permission is off, so only GPS can guide you.';
+    case 'bluetooth_off':
+      return 'Bluetooth is off. Turn it on for the last few metres.';
+    case 'unsupported':
+      return 'This phone cannot use Bluetooth proximity. GPS only.';
+    case 'failed':
+      return 'Bluetooth proximity could not start. GPS only.';
+  }
 }

@@ -139,3 +139,16 @@ describe('throughline — setup stays calmer than Finding', () => {
     expect(saturationRange(setup)).toBeLessThan(saturationRange(socialAccent));
   });
 });
+
+describe('FindingScreen: Bluetooth problems are visible', () => {
+  it('shows no note while Bluetooth is fine', () => {
+    const r = render(<FindingScreen />);
+    expect(r.queryByTestId('finding-radio-issue')).toBeNull();
+  });
+
+  it('says when the Bluetooth permission was refused', () => {
+    useSessionStore.getState().setRadioIssue('permission_denied');
+    const r = render(<FindingScreen />);
+    expect(r.getByTestId('finding-radio-issue').textContent).toMatch(/permission/i);
+  });
+});

@@ -40,6 +40,10 @@ export class SessionEngine {
   private gpsWatch: GpsWatchHandle | null = null;
   private proximityStarted = false;
   private tickTimer: ReturnType<typeof setInterval> | null = null;
+  /** Resolves once the user has answered the permission prompts. */
+  private permission: Promise<boolean> = Promise.resolve(false);
+  /** False once stop() ran, so late async work does not restart anything. */
+  private running = false;
 
   // History tracking: when the session went active, and a guard so each
   // session writes exactly one terminal entry no matter how it ends.
@@ -56,6 +60,13 @@ export class SessionEngine {
     this.startedAt = undefined;
     this.terminalRecorded = false;
     this.peerLabel = undefined;
+    this.running = true;
+    store.setRadioIssue(null);
+
+    // Ask first, before the socket can deliver the session frame: on Android
+    // 12+ scanning or advertising without the Bluetooth permissions throws in
+    // the native service. Radio and GPS both wait on this answer.
+    this.permission = requestProximityPermissions().catch(() => false);
 
     this.pipeline = new ProximityPipeline({
       onTierChange: (tier) => {
@@ -84,12 +95,15 @@ export class SessionEngine {
     });
     this.ws.connect();
 
-    const granted = await requestProximityPermissions();
-    if (granted) {
-      this.gpsWatch = await watchGps((fix) => {
+    const granted = await this.permission;
+    if (granted && this.running) {
+      const watch = await watchGps((fix) => {
         useSessionStore.getState().setMyGps(fix);
         this.ws?.sendGps(fix);
       });
+      // The user may have left while the watch was starting.
+      if (this.running) this.gpsWatch = watch;
+      else watch.remove();
     }
   }
 
@@ -115,10 +129,21 @@ export class SessionEngine {
     // Start native proximity exactly once.
     if (msg.type === 'session' && !this.proximityStarted) {
       this.proximityStarted = true;
-      this.peerSub = onPeerSignal((e: PeerSignalEvent) => this.onSignal(e));
-      startProximity(msg.bleUuid);
-      this.tickTimer = setInterval(() => this.onTick(Date.now()), TICK_MS);
+      void this.startRadio(msg.bleUuid);
     }
+  }
+
+  /** Start advertising and scanning, but only once permission is granted. */
+  private async startRadio(bleUuid: string): Promise<void> {
+    const granted = await this.permission;
+    if (!this.running) return;
+    if (!granted) {
+      useSessionStore.getState().setRadioIssue('permission_denied');
+      return;
+    }
+    this.peerSub = onPeerSignal((e: PeerSignalEvent) => this.onSignal(e));
+    startProximity(bleUuid);
+    this.tickTimer = setInterval(() => this.onTick(Date.now()), TICK_MS);
   }
 
   /** Write the terminal history entry once per session. */
@@ -157,7 +182,9 @@ export class SessionEngine {
   }
 
   stop(): void {
+    this.running = false;
     this.gpsWatch?.remove();
+    this.gpsWatch = null;
     this.peerSub?.remove();
     this.peerSub = null;
     if (this.tickTimer) clearInterval(this.tickTimer);

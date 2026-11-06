@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 
 import { haversineDistance } from '../location/geo';
 import { useSessionStore } from '../session/store';
-import { findingVisual } from '../ui/proximityVisual';
+import { findingVisual, radioIssueText } from '../ui/proximityVisual';
 import { Fonts } from '../ui/tokens';
 
 export interface FindingScreenProps {
@@ -21,8 +21,10 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
   const reading = useSessionStore((s) => s.proximity);
   const myGps = useSessionStore((s) => s.myGps);
   const peerGps = useSessionStore((s) => s.peerGps);
+  const radioIssue = useSessionStore((s) => s.radioIssue);
 
   const v = findingVisual({ tier, reading });
+  const radioNote = radioIssue ? radioIssueText(radioIssue) : null;
 
   const peerLabel = 'your contact';
 
@@ -35,7 +37,8 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
   // never the only signal: the title text + this label carry it too).
   const a11yLabel =
     `Toward ${peerLabel}. ${v.title}. ${v.sub}.` +
-    (metersText ? ` About ${Math.round(distanceM!)} meters.` : '');
+    (metersText ? ` About ${Math.round(distanceM!)} meters.` : '') +
+    (radioNote ? ` ${radioNote}` : '');
 
   return (
     <View
@@ -99,6 +102,11 @@ export function FindingScreen({ onExit, onFound }: FindingScreenProps) {
           {v.title}
         </Text>
         <Text style={[styles.sub, { color: v.ink }]}>{v.sub}</Text>
+        {radioNote && (
+          <Text testID="finding-radio-issue" style={[styles.note, { color: v.ink }]}>
+            {radioNote}
+          </Text>
+        )}
       </View>
 
       {v.isHere && (
@@ -149,6 +157,7 @@ const styles = StyleSheet.create({
   footer: { width: '100%', paddingHorizontal: 30, paddingBottom: 70, alignItems: 'center' },
   title: { fontSize: 26, fontWeight: '600', fontFamily: Fonts.sans },
   sub: { fontSize: 15, opacity: 0.7, marginTop: 7, fontFamily: Fonts.sans },
+  note: { fontSize: 13, opacity: 0.8, marginTop: 14, textAlign: 'center', fontFamily: Fonts.sans },
   socialOverlay: {
     position: 'absolute',
     top: 0,

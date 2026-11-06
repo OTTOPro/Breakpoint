@@ -28,6 +28,13 @@ export type ConnectionState =
 
 export type ParticipantRole = 'initiator' | 'joiner';
 
+/** Why Bluetooth proximity is not running, when it is not. */
+export type RadioIssue =
+  | 'permission_denied'
+  | 'bluetooth_off'
+  | 'unsupported'
+  | 'failed';
+
 export interface SessionStoreState {
   sessionId?: string;
   role?: ParticipantRole;
@@ -54,6 +61,8 @@ export interface SessionStoreState {
   tier: Tier;
   /** Peer's reported tier (relayed by the DO). */
   peerTier?: Tier;
+  /** Set when Bluetooth proximity cannot run; null while it is fine. */
+  radioIssue: RadioIssue | null;
 
   connection: ConnectionState;
   endedReason?: string;
@@ -77,6 +86,7 @@ export interface SessionStoreState {
   setMyGps: (gps: GpsFix) => void;
   setProximity: (proximity: ProximityReading) => void;
   setTier: (tier: Tier) => void;
+  setRadioIssue: (issue: RadioIssue | null) => void;
   setConnection: (connection: ConnectionState) => void;
   reset: () => void;
 }
@@ -96,6 +106,7 @@ const INITIAL = {
   proximity: null,
   tier: 'far' as Tier,
   peerTier: undefined,
+  radioIssue: null as RadioIssue | null,
   connection: 'idle' as ConnectionState,
   endedReason: undefined,
   phase: 'idle' as SessionPhase,
@@ -115,6 +126,8 @@ export const useSessionStore = create<SessionStoreState>((set) => ({
   setPhase: (phase) => set({ phase }),
 
   setError: (error) => set({ error }),
+
+  setRadioIssue: (radioIssue) => set({ radioIssue }),
 
   applyServerMessage: (msg) =>
     set((prev) => {
