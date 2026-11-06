@@ -255,6 +255,7 @@ export class SessionDO {
       await this.save(session);
       this.broadcast({ type: "ended", reason: "cancelled" });
       this.closeAll();
+      await this.wipe();
     }
     return jsonResponse({ state: session.state });
   }
@@ -444,6 +445,7 @@ export class SessionDO {
       reason: "abandoned",
     });
     this.closeAll();
+    await this.wipe();
   }
 
   private async onMet(session: SessionRecord): Promise<void> {
@@ -454,6 +456,7 @@ export class SessionDO {
     this.broadcast({ type: "ended", reason: "met" });
     this.broadcast({ type: "state", state: "ended" });
     this.closeAll();
+    await this.wipe();
   }
 
   /* --------------------------------------------------------------- */
@@ -484,6 +487,7 @@ export class SessionDO {
       session.graceDeadlineAt = 0;
       await this.save(session);
       this.closeAll();
+      await this.wipe();
       return;
     }
 
@@ -499,6 +503,18 @@ export class SessionDO {
     await this.save(session);
     this.broadcast({ type: "ended", reason });
     this.closeAll();
+    await this.wipe();
+  }
+
+  /**
+   * The session is over: drop everything it stored, including the last GPS
+   * fix of each phone, the tokens and the BLE identifier. Later requests for
+   * this session id get a plain 404.
+   */
+  private async wipe(): Promise<void> {
+    this.session = undefined;
+    await this.state.storage.deleteAlarm();
+    await this.state.storage.deleteAll();
   }
 
   /** Set the DO alarm to the earliest still-relevant deadline. */

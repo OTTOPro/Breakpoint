@@ -215,9 +215,9 @@ async function crit4() {
   await sleep(3500); // let the joinTtl alarm fire
   const after = await status(id);
   assert(
-    "session is 'expired' after joinTtl alarm",
-    after.body.state === "expired",
-    `state=${after.body.state}`,
+    "session is gone after the joinTtl alarm (nothing kept)",
+    after.status === 404,
+    `status=${after.status} state=${after.body.state}`,
   );
 }
 
@@ -241,7 +241,11 @@ async function crit5() {
 
   await sleep(200);
   const st = await status(id);
-  assert("state is 'abandoned' after leave", st.body.state === "abandoned", `state=${st.body.state}`);
+  assert(
+    "session is gone after leave (nothing kept)",
+    st.status === 404,
+    `status=${st.status} state=${st.body.state}`,
+  );
 
   initiator.close();
   joiner.close();
@@ -318,6 +322,38 @@ async function crit7() {
   initiator.close();
 }
 
+async function crit8() {
+  console.log("\n(8) met -> both told, then nothing kept");
+  const c = await createSession();
+  const id = c.body.sessionId;
+  const cap = new URLSearchParams(new URL(c.body.joinUrl).hash.slice(1)).get("cap");
+  const j = await join(id, { joinCapability: cap });
+
+  const initiator = new WsClient(id, c.body.participantToken, "initiator");
+  const joiner = new WsClient(id, j.body.participantToken, "joiner");
+  await initiator.open();
+  await joiner.open();
+  await initiator.waitType("session");
+  await joiner.waitType("session");
+  initiator.send({ type: "gps", lat: 45.5, lng: -73.6, accuracy: 5 });
+  await joiner.waitType("peerGps");
+
+  joiner.send({ type: "met" });
+  const ended = await initiator.waitType("ended");
+  assert("initiator is told the session ended (met)", ended.reason === "met", ended.reason);
+
+  await sleep(200);
+  const st = await status(id);
+  assert(
+    "session, GPS fixes included, is gone after met",
+    st.status === 404,
+    `status=${st.status} state=${st.body.state}`,
+  );
+
+  initiator.close();
+  joiner.close();
+}
+
 /* ------------------------------- main ----------------------------------- */
 
 async function main() {
@@ -340,6 +376,7 @@ async function main() {
   await crit5();
   await crit6();
   await crit7();
+  await crit8();
 
   console.log("\n=================== SUMMARY ===================");
   for (const r of results) {
@@ -351,7 +388,7 @@ async function main() {
     console.log(`RESULT: FAIL (${failures} failing assertions)`);
     process.exit(1);
   }
-  console.log("RESULT: PASS — all 7 criteria proven.");
+  console.log("RESULT: PASS: all criteria proven.");
   process.exit(0);
 }
 
