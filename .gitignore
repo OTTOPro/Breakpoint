@@ -9,7 +9,11 @@ build/
 *.tsbuildinfo
 
 # Expo / React Native
+.expo/
 apps/mobile/.expo/
+*.apk
+*.aab
+*.ipa
 apps/mobile/android/
 apps/mobile/ios/
 apps/mobile/web-build/
@@ -23,6 +27,9 @@ apps/backend/.dev.vars
 .env
 .env.*
 !.env.example
+
+# Test coverage
+coverage/
 
 # Logs
 *.log
