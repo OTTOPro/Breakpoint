@@ -372,6 +372,13 @@ export class SessionDO {
     const attachment = ws.deserializeAttachment() as WsAttachment | null;
     if (!attachment) return;
 
+    // A reconnect closes the previous socket for this role: that late close
+    // must not mark someone offline who is already back on a new socket.
+    const stillConnected = this.state
+      .getWebSockets(attachment.role)
+      .some((other) => other !== ws && other.readyState === WebSocket.OPEN);
+    if (stillConnected) return;
+
     const participant = this.participant(session, attachment.role);
     participant.connected = false;
 

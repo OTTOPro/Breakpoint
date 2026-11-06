@@ -376,6 +376,33 @@ async function crit9() {
   assert("initiator can cancel", ok.status === 200 && body.state === "cancelled", `status=${ok.status} state=${body.state}`);
 }
 
+async function crit10() {
+  console.log("\n(10) a reconnect is not undone by the old socket closing");
+  const c = await createSession();
+  const id = c.body.sessionId;
+  const cap = new URLSearchParams(new URL(c.body.joinUrl).hash.slice(1)).get("cap");
+  const j = await join(id, { joinCapability: cap });
+
+  const initiator = new WsClient(id, c.body.participantToken, "initiator");
+  const joiner1 = new WsClient(id, j.body.participantToken, "joiner#1");
+  await initiator.open();
+  await joiner1.open();
+  await joiner1.waitType("session");
+
+  // Second socket for the same participant while the first is still open:
+  // the server closes the first one, and that close must not win.
+  const joiner2 = new WsClient(id, j.body.participantToken, "joiner#2");
+  await joiner2.open();
+  await joiner2.waitType("session");
+  await sleep(400);
+  const st = await status(id);
+  assert("joiner still connected after the old socket closed", st.body.joinerConnected === true, JSON.stringify(st.body));
+
+  initiator.close();
+  joiner1.close();
+  joiner2.close();
+}
+
 /* ------------------------------- main ----------------------------------- */
 
 async function main() {
@@ -400,6 +427,7 @@ async function main() {
   await crit7();
   await crit8();
   await crit9();
+  await crit10();
 
   console.log("\n=================== SUMMARY ===================");
   for (const r of results) {
